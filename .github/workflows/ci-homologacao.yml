@@ -1,14 +1,19 @@
-name: CI Homologacao
+name: Homologacao Pipeline
+
 on:
   push:
     branches: [homologacao]
   pull_request:
     branches: [homologacao]
+
 permissions:
-  contents: read
+  contents: write
+  actions: read
+
 concurrency:
-  group: ci-homologacao-${{ github.ref }}
+  group: homologacao-${{ github.ref }}
   cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -18,21 +23,26 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+
       - id: install
         continue-on-error: true
         run: npm install --no-audit --no-fund
+
       - id: typecheck
         if: steps.install.outcome == 'success'
         continue-on-error: true
         run: npm run typecheck
+
       - id: lint
         if: steps.install.outcome == 'success'
         continue-on-error: true
         run: npm run lint
+
       - id: unit
         if: steps.install.outcome == 'success'
         continue-on-error: true
         run: npm test
+
       - id: build
         if: steps.install.outcome == 'success'
         continue-on-error: true
@@ -40,14 +50,17 @@ jobs:
           GIT_SHA: ${{ github.sha }}
           APP_ENV: homologacao
         run: npm run build
+
       - id: security
         if: steps.install.outcome == 'success'
         continue-on-error: true
         run: npm run security:check
+
       - id: docker
         if: steps.install.outcome == 'success' && steps.build.outcome == 'success'
         continue-on-error: true
         run: docker build --build-arg GIT_SHA=${{ github.sha }} -t octopusia-site:${{ github.sha }} .
+
       - name: Generate sanitized CI report
         if: always()
         env:
@@ -60,6 +73,7 @@ jobs:
           STEP_SECURITY: ${{ steps.security.outcome }}
           STEP_DOCKER: ${{ steps.docker.outcome }}
         run: node scripts/ci-report.mjs
+
       - name: Upload CI report
         if: always()
         uses: actions/upload-artifact@v4
@@ -67,6 +81,7 @@ jobs:
           name: homologacao-ci-report
           path: runtime-reports/latest-ci.json
           retention-days: 14
+
       - name: Enforce CI gate
         if: always()
         run: |
@@ -77,3 +92,111 @@ jobs:
           test "${{ steps.build.outcome }}" = "success"
           test "${{ steps.security.outcome }}" = "success"
           test "${{ steps.docker.outcome }}" = "success"
+
+  deploy-test-report:
+    if: github.event_name == 'push'
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      EXPECTED_GIT_SHA: ${{ github.sha }}
+      HOMOLOG_BASE_URL: ${{ vars.HOMOLOG_BASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download CI report
+        uses: actions/download-artifact@v4
+        with:
+          name: homologacao-ci-report
+          path: runtime-reports
+
+      - id: config
+        name: Validate deployment configuration
+        continue-on-error: true
+        env:
+          EASYPANEL_DEPLOY_URL: ${{ secrets.EASYPANEL_DEPLOY_URL }}
+        run: |
+          if [ -z "$EASYPANEL_DEPLOY_URL" ]; then
+            echo "::error::Secret EASYPANEL_DEPLOY_URL não configurado."
+            exit 1
+          fi
+          if [ -z "$HOMOLOG_BASE_URL" ]; then
+            echo "::error::Variable HOMOLOG_BASE_URL não configurada."
+            exit 1
+          fi
+
+      - id: trigger
+        name: Trigger EasyPanel deployment
+        if: steps.config.outcome == 'success'
+        continue-on-error: true
+        env:
+          EASYPANEL_DEPLOY_URL: ${{ secrets.EASYPANEL_DEPLOY_URL }}
+        run: curl --fail --silent --show-error --request POST "$EASYPANEL_DEPLOY_URL" --output /dev/null
+
+      - id: health
+        name: Wait for exact revision
+        if: steps.trigger.outcome == 'success'
+        continue-on-error: true
+        run: |
+          for attempt in $(seq 1 60); do
+            BODY="$(curl --fail --silent --show-error --max-time 8 "$HOMOLOG_BASE_URL/health" || true)"
+            if [ -n "$BODY" ]; then
+              OK="$(printf '%s' "$BODY" | jq -r '.ok // false' 2>/dev/null || true)"
+              SERVICE="$(printf '%s' "$BODY" | jq -r '.service // ""' 2>/dev/null || true)"
+              COMMIT="$(printf '%s' "$BODY" | jq -r '.commit // ""' 2>/dev/null || true)"
+              if [ "$OK" = "true" ] && [ "$SERVICE" = "octopus-ia-site" ] && [ "$COMMIT" = "$EXPECTED_GIT_SHA" ]; then
+                echo "Revision confirmed healthy."
+                exit 0
+              fi
+            fi
+            sleep 10
+          done
+          echo "::error::A revisão esperada não ficou saudável dentro do prazo."
+          exit 1
+
+      - id: smoke
+        name: Smoke tests
+        if: steps.health.outcome == 'success'
+        continue-on-error: true
+        run: node scripts/smoke.mjs
+
+      - id: regression
+        name: Regression tests
+        if: steps.health.outcome == 'success'
+        continue-on-error: true
+        run: node scripts/regression.mjs
+
+      - name: Checkout report branch
+        if: always()
+        uses: actions/checkout@v4
+        with:
+          ref: homologacao-reports
+          path: report-branch
+
+      - name: Publish sanitized reports
+        if: always()
+        run: |
+          mkdir -p report-branch/reports/history
+          for F in runtime-reports/latest-*.json; do
+            [ -f "$F" ] && cp "$F" report-branch/reports/
+          done
+          STAMP="$(date -u +'%Y%m%dT%H%M%SZ')"
+          [ -f runtime-reports/latest-smoke.json ] && cp runtime-reports/latest-smoke.json "report-branch/reports/history/${STAMP}-smoke.json"
+          [ -f runtime-reports/latest-regression.json ] && cp runtime-reports/latest-regression.json "report-branch/reports/history/${STAMP}-regression.json"
+          cd report-branch
+          git config user.name "octopus-homologacao-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add reports
+          if ! git diff --cached --quiet; then
+            git commit -m "reports: homologacao ${EXPECTED_GIT_SHA}"
+            git push origin homologacao-reports
+          fi
+
+      - name: Enforce deploy and regression gate
+        if: always()
+        run: |
+          test "${{ steps.config.outcome }}" = "success"
+          test "${{ steps.trigger.outcome }}" = "success"
+          test "${{ steps.health.outcome }}" = "success"
+          test "${{ steps.smoke.outcome }}" = "success"
+          test "${{ steps.regression.outcome }}" = "success"
