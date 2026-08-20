@@ -4,11 +4,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { QUICK_PROMPTS } from "../lib/octopus-knowledge";
 
 type Message = { role: "user" | "assistant"; content: string };
-
-type AiStatus = {
-  configured: boolean;
-  model?: string;
-};
+type AiStatus = { configured: boolean; model?: string };
 
 const initialMessage: Message = {
   role: "assistant",
@@ -57,16 +53,17 @@ export default function AIInteractive() {
       if (!reader) throw new Error("A resposta da IA não pôde ser transmitida.");
 
       const decoder = new TextDecoder();
-      let answer = "";
       setStatus("Respondendo...");
 
       while (true) {
         const { value: chunk, done } = await reader.read();
         if (done) break;
-        answer += decoder.decode(chunk, { stream: true });
+        const delta = decoder.decode(chunk, { stream: true });
+        if (!delta) continue;
         setMessages((current) => {
           const next = [...current];
-          next[next.length - 1] = { role: "assistant", content: answer };
+          const last = next[next.length - 1];
+          next[next.length - 1] = { role: "assistant", content: `${last?.content || ""}${delta}` };
           return next;
         });
       }
@@ -95,10 +92,7 @@ export default function AIInteractive() {
       <div className="aiPanelHeader">
         <div>
           <span className="aiSpark">✦</span>
-          <div>
-            <strong>Área de IA Interativa</strong>
-            <small>{status}</small>
-          </div>
+          <div><strong>Área de IA Interativa</strong><small>{status}</small></div>
         </div>
         <span className={`onlineBadge ${aiStatus.configured ? "isOnline" : "isPending"}`}>
           <i /> {aiStatus.configured ? "IA ao vivo" : "Pronta para ativação"}
@@ -123,13 +117,7 @@ export default function AIInteractive() {
       </div>
 
       <form className="aiInput" onSubmit={onSubmit}>
-        <input
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
-          placeholder="Descreva um problema, uma tarefa ou uma ideia..."
-          maxLength={3000}
-          aria-label="Mensagem para a IA da OCTOPUS"
-        />
+        <input value={input} onChange={(event) => setInput(event.target.value)} placeholder="Descreva um problema, uma tarefa ou uma ideia..." maxLength={3000} aria-label="Mensagem para a IA da OCTOPUS" />
         <button type="submit" aria-label="Enviar mensagem" disabled={busy || !input.trim()}>➤</button>
       </form>
 
