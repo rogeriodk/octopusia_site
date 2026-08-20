@@ -54,6 +54,8 @@ jobs:
       - id: security
         if: steps.install.outcome == 'success'
         continue-on-error: true
+        env:
+          GIT_SHA: ${{ github.sha }}
         run: npm run security:check
 
       - id: docker
@@ -74,12 +76,13 @@ jobs:
           STEP_DOCKER: ${{ steps.docker.outcome }}
         run: node scripts/ci-report.mjs
 
-      - name: Upload CI report
+      - name: Upload sanitized CI diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: homologacao-ci-report
-          path: runtime-reports/latest-ci.json
+          path: runtime-reports/latest-*.json
+          if-no-files-found: error
           retention-days: 14
 
       - name: Enforce CI gate
@@ -101,8 +104,7 @@ jobs:
       contents: write
       actions: read
     steps:
-      - name: Download CI report
-        continue-on-error: true
+      - name: Download CI diagnostics
         uses: actions/download-artifact@v4
         with:
           name: homologacao-ci-report
@@ -114,13 +116,20 @@ jobs:
           ref: homologacao-reports
           path: report-branch
 
-      - name: Publish sanitized CI report
+      - name: Publish sanitized CI diagnostics
         run: |
           test -f runtime-reports/latest-ci.json
           mkdir -p report-branch/reports/history
-          cp runtime-reports/latest-ci.json report-branch/reports/latest-ci.json
           STAMP="$(date -u +'%Y%m%dT%H%M%SZ')"
-          cp runtime-reports/latest-ci.json "report-branch/reports/history/${STAMP}-ci.json"
+          for F in runtime-reports/latest-ci.json runtime-reports/latest-security.json; do
+            if [ -f "$F" ]; then
+              NAME="$(basename "$F")"
+              KIND="${NAME#latest-}"
+              KIND="${KIND%.json}"
+              cp "$F" "report-branch/reports/$NAME"
+              cp "$F" "report-branch/reports/history/${STAMP}-${KIND}.json"
+            fi
+          done
           cd report-branch
           git config user.name "octopus-homologacao-bot"
           git config user.email "actions@users.noreply.github.com"
@@ -131,8 +140,8 @@ jobs:
           fi
 
   deploy-test-report:
-    if: ${{ github.event_name == 'push' }}
-    needs: validate
+    if: ${{ github.event_name == 'push' && needs.validate.result == 'success' && needs.publish-ci-report.result == 'success' }}
+    needs: [validate, publish-ci-report]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
