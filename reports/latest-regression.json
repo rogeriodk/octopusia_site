@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "kind": "regression",
+  "environment": "homologacao",
+  "commit": "006b6db37c7e5e0e7f1d11a38847119815517fd3",
+  "startedAt": "2026-08-20T18:26:41.436Z",
+  "finishedAt": "2026-08-20T18:26:42.686Z",
+  "durationMs": 1250,
+  "summary": {
+    "total": 3,
+    "passed": 2,
+    "failed": 1,
+    "warned": 0
+  },
+  "cases": [
+    {
+      "name": "hero",
+      "path": "/",
+      "durationMs": 872,
+      "status": "PASS",
+      "warnings": []
+    },
+    {
+      "name": "solutions",
+      "path": "/",
+      "durationMs": 186,
+      "status": "FAIL",
+      "warnings": [
+        "Conteúdo ausente: Documentos & Engenharia"
+      ]
+    },
+    {
+      "name": "interactive-area",
+      "path": "/",
+      "durationMs": 192,
+      "status": "PASS",
+      "warnings": []
+    }
+  ]
+}
