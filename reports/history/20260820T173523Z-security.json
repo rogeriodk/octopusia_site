@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "kind": "security",
+  "environment": "homologacao",
+  "commit": "2f7b413ad62b761bd04061ae60a488a68495f021",
+  "runId": "[REDACTED_CPF]",
+  "createdAt": "2026-08-20T17:34:17.593Z",
+  "scanStatus": "SUCCESS",
+  "blocking": true,
+  "summary": {
+    "low": 0,
+    "moderate": 0,
+    "high": 3,
+    "critical": 0,
+    "total": 3
+  },
+  "vulnerabilities": [
+    {
+      "package": "next",
+      "severity": "high",
+      "direct": true,
+      "range": "9.3.4-canary.0 - 16.3.0-preview.10",
+      "fixAvailable": true
+    },
+    {
+      "package": "postcss",
+      "severity": "high",
+      "direct": false,
+      "range": "<=8.5.22",
+      "fixAvailable": true
+    },
+    {
+      "package": "sharp",
+      "severity": "high",
+      "direct": false,
+      "range": "<0.35.0",
+      "fixAvailable": true
+    }
+  ]
+}
