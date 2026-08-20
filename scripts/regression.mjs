@@ -10,7 +10,11 @@ const started=Date.now();
 const scenarios=[
   {name:"hero",contains:["IA que entende","Soluções que"]},
   {name:"solutions",contains:["IA Jurídica","Documentos & Engenharia"]},
-  {name:"interactive-area",contains:["Área de IA Interativa","Analisar contrato"]}
+  {
+    name:"interactive-area",
+    contains:["Área de IA Interativa"],
+    testIds:["ai-interactive","ai-quick-prompts","ai-input-form"]
+  }
 ];
 const cases=[];
 
@@ -20,13 +24,18 @@ for(const scenario of scenarios){
     const response=await fetch(new URL("/",baseUrl),{signal:AbortSignal.timeout(10000)});
     const rawBody=await response.text();
     const visibleText=htmlToText(rawBody);
-    const missing=scenario.contains.filter(expected=>!visibleText.includes(expected));
+    const missingContent=(scenario.contains||[]).filter(expected=>!visibleText.includes(expected));
+    const missingTestIds=(scenario.testIds||[]).filter(testId=>!rawBody.includes(`data-testid="${testId}"`));
+    const warnings=[
+      ...missingContent.map(value=>`Conteúdo ausente: ${value}`),
+      ...missingTestIds.map(value=>`Contrato funcional ausente: ${value}`)
+    ];
     cases.push({
       name:scenario.name,
       path:"/",
       durationMs:Date.now()-t,
-      status:response.ok&&!missing.length?"PASS":"FAIL",
-      warnings:missing.map(value=>`Conteúdo ausente: ${value}`)
+      status:response.ok&&!warnings.length?"PASS":"FAIL",
+      warnings
     });
   }catch(error){
     cases.push({name:scenario.name,path:"/",durationMs:Date.now()-t,status:"FAIL",error:String(error)});
