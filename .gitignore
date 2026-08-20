@@ -1,0 +1,12 @@
+node_modules/
+.next/
+out/
+build/
+coverage/
+reports/*.json
+runtime-reports/
+.env
+.env.*
+!.env.example
+.DS_Store
+npm-debug.log*

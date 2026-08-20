@@ -1,0 +1,79 @@
+name: CI Homologacao
+on:
+  push:
+    branches: [homologacao]
+  pull_request:
+    branches: [homologacao]
+permissions:
+  contents: read
+concurrency:
+  group: ci-homologacao-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - id: install
+        continue-on-error: true
+        run: npm install --no-audit --no-fund
+      - id: typecheck
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: npm run typecheck
+      - id: lint
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: npm run lint
+      - id: unit
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: npm test
+      - id: build
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        env:
+          GIT_SHA: ${{ github.sha }}
+          APP_ENV: homologacao
+        run: npm run build
+      - id: security
+        if: steps.install.outcome == 'success'
+        continue-on-error: true
+        run: npm run security:check
+      - id: docker
+        if: steps.install.outcome == 'success' && steps.build.outcome == 'success'
+        continue-on-error: true
+        run: docker build --build-arg GIT_SHA=${{ github.sha }} -t octopusia-site:${{ github.sha }} .
+      - name: Generate sanitized CI report
+        if: always()
+        env:
+          GIT_SHA: ${{ github.sha }}
+          STEP_INSTALL: ${{ steps.install.outcome }}
+          STEP_TYPECHECK: ${{ steps.typecheck.outcome }}
+          STEP_LINT: ${{ steps.lint.outcome }}
+          STEP_UNIT: ${{ steps.unit.outcome }}
+          STEP_BUILD: ${{ steps.build.outcome }}
+          STEP_SECURITY: ${{ steps.security.outcome }}
+          STEP_DOCKER: ${{ steps.docker.outcome }}
+        run: node scripts/ci-report.mjs
+      - name: Upload CI report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: homologacao-ci-report
+          path: runtime-reports/latest-ci.json
+          retention-days: 14
+      - name: Enforce CI gate
+        if: always()
+        run: |
+          test "${{ steps.install.outcome }}" = "success"
+          test "${{ steps.typecheck.outcome }}" = "success"
+          test "${{ steps.lint.outcome }}" = "success"
+          test "${{ steps.unit.outcome }}" = "success"
+          test "${{ steps.build.outcome }}" = "success"
+          test "${{ steps.security.outcome }}" = "success"
+          test "${{ steps.docker.outcome }}" = "success"

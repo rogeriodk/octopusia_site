@@ -1,0 +1,15 @@
+const solutions = [
+  ["⚖", "IA Jurídica", "Análise de contratos, jurisprudência e documentos com precisão e agilidade.", "green"],
+  ["⚙", "Automação", "Automatize tarefas repetitivas e integre sistemas com inteligência e eficiência.", "blue"],
+  ["◌", "Atendimento Inteligente", "Assistentes que entendem contexto e ajudam a resolver solicitações.", "violet"],
+  ["▤", "Documentos & Engenharia", "Extração, classificação e geração inteligente de documentos técnicos.", "teal"]
+];
+
+export default function Home() {
+  return <main>
+    <section className="hero"><div className="wrap heroGrid"><div><span className="eyebrow">INTELIGÊNCIA ARTIFICIAL PARA RESULTADOS REAIS</span><h1>IA que entende.<br/>Soluções que <em>transformam.</em></h1><p className="lead">A OCTOPUS IA cria soluções inteligentes, seguras e personalizadas para otimizar processos, reduzir custos e gerar impacto real no seu negócio.</p><div className="actions"><a className="btn primary" href="#contato">Falar com um Especialista →</a><a className="btn light" href="#solucoes">Ver Soluções</a></div><div className="mini"><span>✓ Tecnologia de ponta</span><span>✓ Segurança e conformidade</span><span>✓ Resultados mensuráveis</span></div></div><section className="aiCard" id="ia"><div className="aiHead"><strong>✦ Área de IA Interativa</strong><span>● Preparada</span></div><div className="bubble"><b>OCTOPUS IA</b><p>Olá! Esta primeira homologação valida a experiência, CI e deploy. A conexão com o motor de IA entra na próxima etapa.</p></div><button>Resumir um documento</button><button className="greenText">Analisar contrato</button><button>Gerar insights do negócio</button><div className="input">Digite sua pergunta... <i>➤</i></div><small>Não envie credenciais ou dados sensíveis nesta demonstração.</small></section></div></section>
+    <section className="section" id="solucoes"><div className="wrap"><div className="intro"><div><span className="eyebrow">NOSSAS SOLUÇÕES</span><h2>Soluções inteligentes para desafios reais</h2></div><p>Da análise de documentos à automação completa de processos, combinamos IA, segurança e engenharia para entregar resultados consistentes.</p></div><div className="cards">{solutions.map(([icon,title,text,color])=><article className={`card ${color}`} key={title}><span className="icon">{icon}</span><h3>{title}</h3><p>{text}</p><a href="#contato">Saiba mais →</a></article>)}</div></div></section>
+    <section className="proof" id="projetos"><div className="wrap"><span className="eyebrow">CAPACIDADES & PROJETOS</span><h2>Um portfólio que será demonstrável, não apenas descritivo.</h2><div className="pillRow"><span>IA generativa</span><span>RAG & documentos</span><span>Integrações & APIs</span><span>Automação</span><span>Dados & analytics</span></div></div></section>
+    <section className="cta" id="sobre"><div className="wrap ctaBox"><div><span className="eyebrow">OCTOPUS IA</span><h2>Não apenas explicar o que fazemos. Permitir que o visitante experimente.</h2></div><a className="btn dark" href="#contato">Iniciar conversa →</a></div></section>
+  </main>;
+}

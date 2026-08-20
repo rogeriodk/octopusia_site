@@ -1,0 +1,102 @@
+name: Deploy Homologacao
+on:
+  workflow_run:
+    workflows: ["CI Homologacao"]
+    types: [completed]
+    branches: [homologacao]
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: deploy-homologacao
+  cancel-in-progress: true
+jobs:
+  deploy-test-report:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      EXPECTED_GIT_SHA: ${{ github.event.workflow_run.head_sha }}
+      HOMOLOG_BASE_URL: ${{ vars.HOMOLOG_BASE_URL }}
+    steps:
+      - name: Checkout tested revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - id: config
+        name: Validate deployment configuration
+        continue-on-error: true
+        env:
+          EASYPANEL_DEPLOY_URL: ${{ secrets.EASYPANEL_DEPLOY_URL }}
+        run: |
+          if [ -z "$EASYPANEL_DEPLOY_URL" ]; then echo "::error::Secret EASYPANEL_DEPLOY_URL não configurado."; exit 1; fi
+          if [ -z "$HOMOLOG_BASE_URL" ]; then echo "::error::Variable HOMOLOG_BASE_URL não configurada."; exit 1; fi
+      - id: trigger
+        name: Trigger EasyPanel deployment
+        if: steps.config.outcome == 'success'
+        continue-on-error: true
+        env:
+          EASYPANEL_DEPLOY_URL: ${{ secrets.EASYPANEL_DEPLOY_URL }}
+        run: curl --fail --silent --show-error --request POST "$EASYPANEL_DEPLOY_URL" --output /dev/null
+      - id: health
+        name: Wait for exact revision
+        if: steps.trigger.outcome == 'success'
+        continue-on-error: true
+        run: |
+          for attempt in $(seq 1 60); do
+            BODY="$(curl --fail --silent --show-error --max-time 8 "$HOMOLOG_BASE_URL/health" || true)"
+            if [ -n "$BODY" ]; then
+              OK="$(printf '%s' "$BODY" | jq -r '.ok // false' 2>/dev/null || true)"
+              SERVICE="$(printf '%s' "$BODY" | jq -r '.service // ""' 2>/dev/null || true)"
+              COMMIT="$(printf '%s' "$BODY" | jq -r '.commit // ""' 2>/dev/null || true)"
+              if [ "$OK" = "true" ] && [ "$SERVICE" = "octopus-ia-site" ] && [ "$COMMIT" = "$EXPECTED_GIT_SHA" ]; then echo "Revision confirmed healthy."; exit 0; fi
+            fi
+            sleep 10
+          done
+          echo "::error::A revisão esperada não ficou saudável dentro do prazo."; exit 1
+      - id: smoke
+        name: Smoke tests
+        if: steps.health.outcome == 'success'
+        continue-on-error: true
+        run: node scripts/smoke.mjs
+      - id: regression
+        name: Regression tests
+        if: steps.health.outcome == 'success'
+        continue-on-error: true
+        run: node scripts/regression.mjs
+      - name: Download CI report
+        if: always()
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: homologacao-ci-report
+          path: runtime-reports
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+      - name: Checkout report branch
+        if: always()
+        uses: actions/checkout@v4
+        with:
+          ref: homologacao-reports
+          path: report-branch
+      - name: Publish sanitized reports
+        if: always()
+        run: |
+          mkdir -p report-branch/reports/history
+          for F in runtime-reports/latest-*.json; do [ -f "$F" ] && cp "$F" report-branch/reports/; done
+          STAMP="$(date -u +'%Y%m%dT%H%M%SZ')"
+          [ -f runtime-reports/latest-smoke.json ] && cp runtime-reports/latest-smoke.json "report-branch/reports/history/${STAMP}-smoke.json"
+          [ -f runtime-reports/latest-regression.json ] && cp runtime-reports/latest-regression.json "report-branch/reports/history/${STAMP}-regression.json"
+          cd report-branch
+          git config user.name "octopus-homologacao-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add reports
+          if ! git diff --cached --quiet; then git commit -m "reports: homologacao ${EXPECTED_GIT_SHA}" && git push origin homologacao-reports; fi
+      - name: Enforce deploy and regression gate
+        if: always()
+        run: |
+          test "${{ steps.config.outcome }}" = "success"
+          test "${{ steps.trigger.outcome }}" = "success"
+          test "${{ steps.health.outcome }}" = "success"
+          test "${{ steps.smoke.outcome }}" = "success"
+          test "${{ steps.regression.outcome }}" = "success"
