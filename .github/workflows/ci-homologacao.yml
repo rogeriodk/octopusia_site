@@ -149,7 +149,7 @@ jobs:
       actions: read
     env:
       EXPECTED_GIT_SHA: ${{ github.sha }}
-      HOMOLOG_BASE_URL: ${{ vars.HOMOLOG_BASE_URL }}
+      HOMOLOG_BASE_URL: ${{ vars.HOMOLOG_BASE_URL || secrets.HOMOLOG_BASE_URL }}
     steps:
       - uses: actions/checkout@v4
 
@@ -164,7 +164,7 @@ jobs:
             exit 1
           fi
           if [ -z "$HOMOLOG_BASE_URL" ]; then
-            echo "::error::Variable HOMOLOG_BASE_URL não configurada."
+            echo "::error::Variable ou Secret HOMOLOG_BASE_URL não configurado."
             exit 1
           fi
 
