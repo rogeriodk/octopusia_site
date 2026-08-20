@@ -6,9 +6,12 @@ const cases=names.map(name=>({name,status:(process.env[`STEP_${name.toUpperCase(
 let observation=null;
 try{observation=JSON.parse(await fs.readFile("runtime-reports/health-observation.json","utf8"));}catch{}
 
+const baseUrl=process.env.HOMOLOG_BASE_URL||null;
+const configStatus=cases.find(x=>x.name==="config")?.status;
 let diagnosis="OK";
-if(cases.find(x=>x.name==="config")?.status!=="SUCCESS") diagnosis="CONFIGURATION";
-else if(cases.find(x=>x.name==="trigger")?.status!=="SUCCESS") diagnosis="DEPLOY_TRIGGER";
+if(configStatus!=="SUCCESS"){
+  diagnosis=baseUrl?"MISSING_EASYPANEL_DEPLOY_URL":"MISSING_HOMOLOG_BASE_URL";
+}else if(cases.find(x=>x.name==="trigger")?.status!=="SUCCESS") diagnosis="DEPLOY_TRIGGER";
 else if(cases.find(x=>x.name==="health")?.status!=="SUCCESS"){
   if(!observation?.reachable) diagnosis="HEALTH_ENDPOINT_UNREACHABLE";
   else if(observation?.service && observation.service!=="octopus-ia-site") diagnosis="SERVICE_MISMATCH";
@@ -23,7 +26,8 @@ const report=sanitizeValue({
   environment:"homologacao",
   commit:process.env.EXPECTED_GIT_SHA||null,
   runId:process.env.GITHUB_RUN_ID||null,
-  baseUrl:process.env.HOMOLOG_BASE_URL||null,
+  baseUrl,
+  configuration:{homologBaseUrlPresent:Boolean(baseUrl)},
   createdAt:new Date().toISOString(),
   diagnosis,
   summary:{
