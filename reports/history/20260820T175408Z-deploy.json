@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "kind": "deploy",
+  "environment": "homologacao",
+  "commit": "abeaf[REDACTED_PHONE]cafe2239733da83cb06378c5c7a",
+  "runId": "[REDACTED_CPF]",
+  "baseUrl": null,
+  "createdAt": "2026-08-20T17:54:08.193Z",
+  "diagnosis": "CONFIGURATION",
+  "summary": {
+    "total": 5,
+    "passed": 0,
+    "failed": 1,
+    "warned": 4
+  },
+  "cases": [
+    {
+      "name": "config",
+      "status": "FAILURE"
+    },
+    {
+      "name": "trigger",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "health",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "smoke",
+      "status": "SKIPPED"
+    },
+    {
+      "name": "regression",
+      "status": "SKIPPED"
+    }
+  ],
+  "healthObservation": null
+}
