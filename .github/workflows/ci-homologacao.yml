@@ -225,6 +225,7 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add reports
           if ! git diff --cached --quiet; then
+            git commit -m "reports: functional ${EXPECTED_GIT_SHA}"
             git pull --rebase origin homologacao-reports
             git push origin homologacao-reports
           fi
