@@ -8,9 +8,16 @@ try{observation=JSON.parse(await fs.readFile("runtime-reports/health-observation
 
 const baseUrl=process.env.HOMOLOG_BASE_URL||null;
 const configStatus=cases.find(x=>x.name==="config")?.status;
+const deployUrlPresenceRaw=process.env.EASYPANEL_DEPLOY_URL_PRESENT;
+const deployUrlPresent=deployUrlPresenceRaw==="true" ? true : deployUrlPresenceRaw==="false" ? false : null;
+const baseUrlPresent=Boolean(baseUrl);
+
 let diagnosis="OK";
 if(configStatus!=="SUCCESS"){
-  diagnosis=baseUrl?"MISSING_EASYPANEL_DEPLOY_URL":"MISSING_HOMOLOG_BASE_URL";
+  if(!baseUrlPresent && deployUrlPresent===false) diagnosis="MISSING_HOMOLOG_BASE_URL_AND_EASYPANEL_DEPLOY_URL";
+  else if(!baseUrlPresent) diagnosis="MISSING_HOMOLOG_BASE_URL";
+  else if(deployUrlPresent===false) diagnosis="MISSING_EASYPANEL_DEPLOY_URL";
+  else diagnosis="CONFIGURATION";
 }else if(cases.find(x=>x.name==="trigger")?.status!=="SUCCESS") diagnosis="DEPLOY_TRIGGER";
 else if(cases.find(x=>x.name==="health")?.status!=="SUCCESS"){
   if(!observation?.reachable) diagnosis="HEALTH_ENDPOINT_UNREACHABLE";
@@ -27,7 +34,10 @@ const report=sanitizeValue({
   commit:process.env.EXPECTED_GIT_SHA||null,
   runId:process.env.GITHUB_RUN_ID||null,
   baseUrl,
-  configuration:{homologBaseUrlPresent:Boolean(baseUrl)},
+  configuration:{
+    homologBaseUrlPresent:baseUrlPresent,
+    easypanelDeployUrlPresent:deployUrlPresent
+  },
   createdAt:new Date().toISOString(),
   diagnosis,
   summary:{
