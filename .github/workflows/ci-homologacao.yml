@@ -96,7 +96,7 @@ jobs:
           test "${{ steps.security.outcome }}" = "success"
           test "${{ steps.docker.outcome }}" = "success"
 
-  publish-ci-report:
+  publish_ci_report:
     if: ${{ always() && github.event_name == 'push' }}
     needs: validate
     runs-on: ubuntu-latest
@@ -139,9 +139,9 @@ jobs:
             git push origin homologacao-reports
           fi
 
-  deploy-test-report:
-    if: ${{ github.event_name == 'push' && needs.validate.result == 'success' && needs.publish-ci-report.result == 'success' }}
-    needs: [validate, publish-ci-report]
+  deploy_test_report:
+    if: ${{ github.event_name == 'push' && needs.validate.result == 'success' && needs.publish_ci_report.result == 'success' }}
+    needs: [validate, publish_ci_report]
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
