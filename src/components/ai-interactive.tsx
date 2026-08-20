@@ -88,7 +88,7 @@ export default function AIInteractive() {
   }
 
   return (
-    <section className="aiPanel" id="ia" aria-label="Área de IA Interativa">
+    <section className="aiPanel" id="ia" aria-label="Área de IA Interativa" data-testid="ai-interactive">
       <div className="aiPanelHeader">
         <div>
           <span className="aiSpark">✦</span>
@@ -108,7 +108,7 @@ export default function AIInteractive() {
         ))}
       </div>
 
-      <div className="quickPrompts" aria-label="Sugestões de perguntas">
+      <div className="quickPrompts" aria-label="Sugestões de perguntas" data-testid="ai-quick-prompts">
         {QUICK_PROMPTS.map((prompt, index) => (
           <button key={prompt} type="button" onClick={() => void sendMessage(prompt)} disabled={busy}>
             <span>{index === 0 ? "↗" : index === 1 ? "▤" : "⌘"}</span>{prompt}
@@ -116,7 +116,7 @@ export default function AIInteractive() {
         ))}
       </div>
 
-      <form className="aiInput" onSubmit={onSubmit}>
+      <form className="aiInput" onSubmit={onSubmit} data-testid="ai-input-form">
         <input value={input} onChange={(event) => setInput(event.target.value)} placeholder="Descreva um problema, uma tarefa ou uma ideia..." maxLength={3000} aria-label="Mensagem para a IA da OCTOPUS" />
         <button type="submit" aria-label="Enviar mensagem" disabled={busy || !input.trim()}>➤</button>
       </form>
