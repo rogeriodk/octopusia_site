@@ -1,0 +1,1 @@
+Brand assets used by the OCTOPUS IA website. Binary logo files are sourced from the official OCTOPUS IA artwork supplied for this project.
