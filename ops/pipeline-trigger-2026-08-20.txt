@@ -1,0 +1,4 @@
+Trigger controlado do pipeline de homologação.
+Data: 2026-08-20
+Objetivo: validar CI -> EasyPanel -> /health -> smoke -> regressão -> homologacao-reports.
+Sem alteração funcional da aplicação.
