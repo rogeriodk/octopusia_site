@@ -117,7 +117,7 @@ export default function AIInteractive() {
       </div>
 
       <form className="aiInput" onSubmit={onSubmit} data-testid="ai-input-form">
-        <input value={input} onChange={(event) => setInput(event.target.value)} placeholder="Descreva um problema, uma tarefa ou uma ideia..." maxLength={3000} aria-label="Mensagem para a IA da OCTOPUS" />
+        <input value={input} onChange={(event) => setInput(event.target.value)} placeholder="Descreva seu problema ou ideia..." maxLength={3000} aria-label="Mensagem para a IA da OCTOPUS" />
         <button type="submit" aria-label="Enviar mensagem" disabled={busy || !input.trim()}>➤</button>
       </form>
 
