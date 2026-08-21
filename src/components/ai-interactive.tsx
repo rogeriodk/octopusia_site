@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { QUICK_PROMPTS } from "../lib/octopus-knowledge";
 
 type Message = { role: "user" | "assistant"; content: string };
@@ -17,6 +17,7 @@ export default function AIInteractive() {
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("Pronta para conversar");
   const [aiStatus, setAiStatus] = useState<AiStatus>({ configured: false });
+  const conversationRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch("/api/ai", { cache: "no-store" })
@@ -24,6 +25,15 @@ export default function AIInteractive() {
       .then((data: AiStatus) => setAiStatus(data))
       .catch(() => setAiStatus({ configured: false }));
   }, []);
+
+  useEffect(() => {
+    const node = conversationRef.current;
+    if (!node) return;
+    const frame = requestAnimationFrame(() => {
+      node.scrollTop = node.scrollHeight;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [messages, busy]);
 
   const recentHistory = useMemo(() => messages.slice(-8), [messages]);
 
@@ -54,18 +64,24 @@ export default function AIInteractive() {
 
       const decoder = new TextDecoder();
       setStatus("Respondendo...");
+      let receivedText = false;
 
       while (true) {
         const { value: chunk, done } = await reader.read();
         if (done) break;
         const delta = decoder.decode(chunk, { stream: true });
         if (!delta) continue;
+        receivedText = true;
         setMessages((current) => {
           const next = [...current];
           const last = next[next.length - 1];
           next[next.length - 1] = { role: "assistant", content: `${last?.content || ""}${delta}` };
           return next;
         });
+      }
+
+      if (!receivedText) {
+        throw new Error("A IA concluiu o processamento, mas não retornou texto. Tente novamente.");
       }
 
       setStatus("Pronta para continuar");
@@ -99,11 +115,11 @@ export default function AIInteractive() {
         </span>
       </div>
 
-      <div className="aiConversation" aria-live="polite">
+      <div className="aiConversation" ref={conversationRef} aria-live="polite" aria-busy={busy}>
         {messages.slice(-5).map((message, index) => (
           <div key={`${message.role}-${index}`} className={`message ${message.role}`}>
             <span className="messageAvatar">{message.role === "assistant" ? "O" : "Você"}</span>
-            <p>{message.content || (busy ? "..." : "")}</p>
+            <p>{message.content || (busy ? "Pensando..." : "")}</p>
           </div>
         ))}
       </div>
