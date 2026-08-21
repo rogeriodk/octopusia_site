@@ -1,8 +1,8 @@
 import fs from "node:fs/promises";
 import { sanitizeValue } from "./sanitize-report.mjs";
 
-const names=["config","trigger","health","smoke","ai_live","regression"];
-const cases=names.map(name=>({name:name.replace("_","-"),status:(process.env[`STEP_${name.toUpperCase()}`]||"skipped").toUpperCase()}));
+const names=["config","trigger","health","smoke","ai_live","ui_setup","ui_live","regression"];
+const cases=names.map(name=>({name:name.replaceAll("_","-"),status:(process.env[`STEP_${name.toUpperCase()}`]||"skipped").toUpperCase()}));
 let observation=null;
 try{observation=JSON.parse(await fs.readFile("runtime-reports/health-observation.json","utf8"));}catch{}
 
@@ -26,6 +26,8 @@ else if(cases.find(x=>x.name==="health")?.status!=="SUCCESS"){
   else diagnosis="HEALTH_CHECK_FAILED";
 }else if(cases.find(x=>x.name==="smoke")?.status!=="SUCCESS") diagnosis="SMOKE_TEST_FAILURE";
 else if(cases.find(x=>x.name==="ai-live")?.status!=="SUCCESS") diagnosis="AI_LIVE_FAILURE";
+else if(cases.find(x=>x.name==="ui-setup")?.status!=="SUCCESS") diagnosis="UI_TEST_SETUP_FAILURE";
+else if(cases.find(x=>x.name==="ui-live")?.status!=="SUCCESS") diagnosis="UI_LIVE_FAILURE";
 else if(cases.find(x=>x.name==="regression")?.status!=="SUCCESS") diagnosis="REGRESSION_FAILURE";
 
 const report=sanitizeValue({
