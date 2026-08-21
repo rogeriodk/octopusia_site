@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "kind": "ai-live",
+  "environment": "homologacao",
+  "commit": "71cba815ad3ea66690aca79eea4ef68797c64203",
+  "baseUrl": "https://homolog.octopusia.org",
+  "startedAt": "2026-08-21T12:55:29.459Z",
+  "finishedAt": "2026-08-21T12:55:33.417Z",
+  "durationMs": 3958,
+  "summary": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0,
+    "warned": 0
+  },
+  "cases": [
+    {
+      "name": "openai-live-conversation",
+      "status": "PASS",
+      "configured": true,
+      "model": "gpt-5.6",
+      "httpStatus": 200,
+      "responsePreview": "OCTOPUS_OK",
+      "error": null
+    }
+  ]
+}
