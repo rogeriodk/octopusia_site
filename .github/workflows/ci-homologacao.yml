@@ -143,7 +143,7 @@ jobs:
     if: ${{ github.event_name == 'push' && needs.validate.result == 'success' && needs.publish_ci_report.result == 'success' }}
     needs: [validate, publish_ci_report]
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     permissions:
       contents: write
       actions: read
@@ -222,16 +222,39 @@ jobs:
         run: node scripts/smoke.mjs
 
       - id: ai_live
-        name: Live AI test
+        name: Live AI backend test
         if: steps.health.outcome == 'success'
         continue-on-error: true
         run: node scripts/ai-live.mjs
+
+      - id: ui_setup
+        name: Prepare browser tests
+        if: steps.health.outcome == 'success'
+        continue-on-error: true
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - id: ui_live
+        name: Desktop and mobile live UI tests
+        if: steps.health.outcome == 'success' && steps.ui_setup.outcome == 'success'
+        continue-on-error: true
+        run: node scripts/ui-live.mjs
 
       - id: regression
         name: Regression tests
         if: steps.health.outcome == 'success'
         continue-on-error: true
         run: node scripts/regression.mjs
+
+      - name: Upload UI failure evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: homologacao-ui-evidence-${{ github.run_id }}
+          path: runtime-reports/ui-failure-*.png
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Generate sanitized deployment report
         if: always()
@@ -241,6 +264,8 @@ jobs:
           STEP_HEALTH: ${{ steps.health.outcome }}
           STEP_SMOKE: ${{ steps.smoke.outcome }}
           STEP_AI_LIVE: ${{ steps.ai_live.outcome }}
+          STEP_UI_SETUP: ${{ steps.ui_setup.outcome }}
+          STEP_UI_LIVE: ${{ steps.ui_live.outcome }}
           STEP_REGRESSION: ${{ steps.regression.outcome }}
         run: node scripts/deploy-report.mjs
 
@@ -256,7 +281,7 @@ jobs:
         run: |
           mkdir -p report-branch/reports/history
           STAMP="$(date -u +'%Y%m%dT%H%M%SZ')"
-          for F in runtime-reports/latest-deploy.json runtime-reports/latest-smoke.json runtime-reports/latest-ai-live.json runtime-reports/latest-regression.json; do
+          for F in runtime-reports/latest-deploy.json runtime-reports/latest-smoke.json runtime-reports/latest-ai-live.json runtime-reports/latest-ui-live.json runtime-reports/latest-regression.json; do
             if [ -f "$F" ]; then
               NAME="$(basename "$F")"
               KIND="${NAME#latest-}"
@@ -275,7 +300,7 @@ jobs:
             git push origin homologacao-reports
           fi
 
-      - name: Enforce deploy, AI and regression gate
+      - name: Enforce deploy, AI, UI and regression gate
         if: always()
         run: |
           test "${{ steps.config.outcome }}" = "success"
@@ -283,4 +308,6 @@ jobs:
           test "${{ steps.health.outcome }}" = "success"
           test "${{ steps.smoke.outcome }}" = "success"
           test "${{ steps.ai_live.outcome }}" = "success"
+          test "${{ steps.ui_setup.outcome }}" = "success"
+          test "${{ steps.ui_live.outcome }}" = "success"
           test "${{ steps.regression.outcome }}" = "success"
