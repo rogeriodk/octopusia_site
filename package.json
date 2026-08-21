@@ -12,6 +12,8 @@
     "test": "node --test tests/unit/*.test.mjs",
     "test:smoke": "node scripts/smoke.mjs",
     "test:regression": "node scripts/regression.mjs",
+    "test:ai-live": "node scripts/ai-live.mjs",
+    "test:ui-live": "node scripts/ui-live.mjs",
     "security:check": "node scripts/security-check.mjs"
   },
   "dependencies": {
@@ -25,6 +27,7 @@
     "@types/react-dom": "^19.0.0",
     "eslint": "^9.0.0",
     "eslint-config-next": "16.3.0",
+    "playwright": "^1.54.2",
     "typescript": "^5.9.0"
   },
   "overrides": {
