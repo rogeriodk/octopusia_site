@@ -37,9 +37,16 @@ try {
 
   httpStatus = response.status;
   const text = await response.text();
-  responsePreview = text.replace(/\s+/g, " ").trim().slice(0, 120);
+  const normalized = text.replace(/\s+/g, " ").trim();
+  responsePreview = normalized.slice(0, 120);
   if (!response.ok) throw new Error(`Endpoint de IA respondeu HTTP ${response.status}.`);
-  if (!text.trim()) throw new Error("Endpoint de IA retornou resposta vazia.");
+  if (!normalized) throw new Error("Endpoint de IA retornou resposta vazia.");
+  if (!normalized.includes("OCTOPUS_OK")) {
+    throw new Error("Endpoint respondeu, mas não entregou o conteúdo solicitado pelo teste.");
+  }
+  if (/não consegui gerar uma resposta visível|não foi possível concluir a resposta|tente novamente/i.test(normalized)) {
+    throw new Error("Endpoint retornou mensagem de fallback em vez da resposta da IA.");
+  }
 
   status = "PASS";
 } catch (caught) {
