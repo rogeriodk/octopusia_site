@@ -69,71 +69,35 @@ export async function POST(request: Request) {
   const model = process.env.OPENAI_MODEL || "gpt-5.6";
   const client = new OpenAI({ apiKey, timeout: 60000, maxRetries: 1 });
 
-  let upstream;
   try {
-    upstream = await client.responses.create({
+    const response = await client.responses.create({
       model,
       instructions: OCTOPUS_ASSISTANT_INSTRUCTIONS,
       input,
-      max_output_tokens: 900,
+      max_output_tokens: 1200,
       reasoning: { effort: "minimal" },
-      store: false,
-      stream: true
+      store: false
+    });
+
+    const answer = response.output_text?.trim() || "";
+    if (!answer) {
+      console.error("AI upstream returned no output_text", {
+        responseId: response.id,
+        status: response.status
+      });
+      return NextResponse.json({ error: "A IA concluiu o processamento, mas não retornou texto. Tente novamente." }, { status: 502 });
+    }
+
+    return new Response(answer, {
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-store, no-cache, must-revalidate"
+      }
     });
   } catch (error) {
-    console.error("AI upstream request failed", {
+    console.error("AI request failed", {
       name: error instanceof Error ? error.name : "UnknownError"
     });
     return NextResponse.json({ error: "A IA não conseguiu concluir a solicitação agora." }, { status: 502 });
   }
-
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      let emitted = "";
-      try {
-        for await (const event of upstream) {
-          if (event.type === "response.output_text.delta" && event.delta) {
-            emitted += event.delta;
-            controller.enqueue(encoder.encode(event.delta));
-          }
-        }
-
-        if (!emitted.trim()) {
-          const fallback = await client.responses.create({
-            model,
-            instructions: OCTOPUS_ASSISTANT_INSTRUCTIONS,
-            input,
-            max_output_tokens: 900,
-            reasoning: { effort: "minimal" },
-            store: false
-          });
-          const fallbackText = fallback.output_text?.trim() || "";
-          if (fallbackText) {
-            emitted = fallbackText;
-            controller.enqueue(encoder.encode(fallbackText));
-          }
-        }
-
-        if (!emitted.trim()) {
-          controller.enqueue(encoder.encode("A IA concluiu o processamento, mas não retornou texto. Tente novamente."));
-        }
-      } catch (error) {
-        console.error("AI response stream failed", {
-          name: error instanceof Error ? error.name : "UnknownError"
-        });
-        controller.enqueue(encoder.encode("Não foi possível concluir a resposta. Tente novamente."));
-      } finally {
-        controller.close();
-      }
-    }
-  });
-
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "no-store, no-cache, must-revalidate",
-      "X-Accel-Buffering": "no"
-    }
-  });
 }
