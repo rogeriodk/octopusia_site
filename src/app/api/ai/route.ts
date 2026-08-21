@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 
 type ClientMessage = { role: "user" | "assistant"; content: string };
 type Bucket = { count: number; resetAt: number };
+type SafeOpenAIError = { status?: unknown; code?: unknown; type?: unknown; name?: unknown };
 
 const buckets = new Map<string, Bucket>();
 const WINDOW_MS = 10 * 60 * 1000;
@@ -38,6 +39,19 @@ function validHistory(value: unknown): ClientMessage[] {
     })
     .map((item) => ({ role: item.role, content: item.content.slice(0, 3000) }))
     .slice(-8);
+}
+
+function safeErrorDetails(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return { upstreamStatus: null, upstreamCode: null, upstreamType: null, errorName: "UnknownError" };
+  }
+
+  const candidate = error as SafeOpenAIError;
+  const upstreamStatus = typeof candidate.status === "number" ? candidate.status : null;
+  const upstreamCode = typeof candidate.code === "string" ? candidate.code.slice(0, 80) : null;
+  const upstreamType = typeof candidate.type === "string" ? candidate.type.slice(0, 80) : null;
+  const errorName = typeof candidate.name === "string" ? candidate.name.slice(0, 80) : "UnknownError";
+  return { upstreamStatus, upstreamCode, upstreamType, errorName };
 }
 
 export async function GET() {
@@ -75,7 +89,6 @@ export async function POST(request: Request) {
       instructions: OCTOPUS_ASSISTANT_INSTRUCTIONS,
       input,
       max_output_tokens: 1200,
-      reasoning: { effort: "minimal" },
       store: false
     });
 
@@ -85,7 +98,10 @@ export async function POST(request: Request) {
         responseId: response.id,
         status: response.status
       });
-      return NextResponse.json({ error: "A IA concluiu o processamento, mas não retornou texto. Tente novamente." }, { status: 502 });
+      return NextResponse.json({
+        error: "A IA concluiu o processamento, mas não retornou texto. Tente novamente.",
+        errorCode: "EMPTY_OUTPUT"
+      }, { status: 502 });
     }
 
     return new Response(answer, {
@@ -95,9 +111,20 @@ export async function POST(request: Request) {
       }
     });
   } catch (error) {
-    console.error("AI request failed", {
-      name: error instanceof Error ? error.name : "UnknownError"
+    const details = safeErrorDetails(error);
+    console.error("AI request failed", details);
+    return NextResponse.json({
+      error: "A IA não conseguiu concluir a solicitação agora.",
+      errorCode: "OPENAI_UPSTREAM_ERROR",
+      upstreamStatus: details.upstreamStatus,
+      upstreamCode: details.upstreamCode,
+      upstreamType: details.upstreamType
+    }, {
+      status: 502,
+      headers: {
+        "X-Octopus-AI-Error": "OPENAI_UPSTREAM_ERROR",
+        "X-Octopus-AI-Upstream-Status": details.upstreamStatus ? String(details.upstreamStatus) : "unknown"
+      }
     });
-    return NextResponse.json({ error: "A IA não conseguiu concluir a solicitação agora." }, { status: 502 });
   }
 }
