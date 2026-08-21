@@ -11,6 +11,10 @@ let configured = false;
 let model = null;
 let responsePreview = "";
 let error = null;
+let upstreamStatus = null;
+let upstreamCode = null;
+let upstreamType = null;
+let errorCode = null;
 
 try {
   const readiness = await fetch(new URL("/api/ai", baseUrl), {
@@ -36,10 +40,22 @@ try {
   });
 
   httpStatus = response.status;
+  upstreamStatus = response.headers.get("x-octopus-ai-upstream-status");
   const text = await response.text();
   const normalized = text.replace(/\s+/g, " ").trim();
-  responsePreview = normalized.slice(0, 120);
-  if (!response.ok) throw new Error(`Endpoint de IA respondeu HTTP ${response.status}.`);
+  responsePreview = normalized.slice(0, 160);
+
+  if (!response.ok) {
+    try {
+      const parsed = JSON.parse(text);
+      errorCode = typeof parsed?.errorCode === "string" ? parsed.errorCode : null;
+      upstreamStatus = parsed?.upstreamStatus ?? upstreamStatus;
+      upstreamCode = typeof parsed?.upstreamCode === "string" ? parsed.upstreamCode : null;
+      upstreamType = typeof parsed?.upstreamType === "string" ? parsed.upstreamType : null;
+    } catch {}
+    throw new Error(`Endpoint de IA respondeu HTTP ${response.status}.`);
+  }
+
   if (!normalized) throw new Error("Endpoint de IA retornou resposta vazia.");
   if (!normalized.includes("OCTOPUS_OK")) {
     throw new Error("Endpoint respondeu, mas não entregou o conteúdo solicitado pelo teste.");
@@ -69,6 +85,10 @@ const report = sanitizeValue({
     configured,
     model,
     httpStatus,
+    errorCode,
+    upstreamStatus,
+    upstreamCode,
+    upstreamType,
     responsePreview,
     error
   }]
