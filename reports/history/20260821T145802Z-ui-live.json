@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "kind": "ui-live",
+  "environment": "homologacao",
+  "commit": "fcd6e0f4931154bc7d0e67f19a77352d57552aff",
+  "baseUrl": "https://homolog.octopusia.org",
+  "startedAt": "2026-08-21T14:56:21.694Z",
+  "finishedAt": "2026-08-21T14:57:58.058Z",
+  "durationMs": 96364,
+  "summary": {
+    "total": 2,
+    "passed": 0,
+    "failed": 2,
+    "warned": 0
+  },
+  "cases": [
+    {
+      "name": "ai-chat-desktop",
+      "viewport": "1440x900",
+      "status": "FAIL",
+      "durationMs": 47960,
+      "answerPreview": "",
+      "consoleErrors": [],
+      "error": "page.waitForFunction: Timeout 45000ms exceeded."
+    },
+    {
+      "name": "ai-chat-mobile",
+      "viewport": "390x844",
+      "status": "FAIL",
+      "durationMs": 48104,
+      "answerPreview": "",
+      "consoleErrors": [],
+      "error": "page.waitForFunction: Timeout 45000ms exceeded."
+    }
+  ],
+  "failureArtifacts": [
+    "runtime-reports/ui-failure-desktop.png",
+    "runtime-reports/ui-failure-mobile.png"
+  ]
+}
