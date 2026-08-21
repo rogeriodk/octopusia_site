@@ -6,6 +6,9 @@ export const dynamic = "force-dynamic";
 
 type ClientMessage = { role: "user" | "assistant"; content: string };
 type Bucket = { count: number; resetAt: number };
+type ResponseContent = { type?: string; text?: string; refusal?: string };
+type ResponseOutput = { type?: string; content?: ResponseContent[] };
+type OpenAIResponsePayload = { output_text?: string; output?: ResponseOutput[] };
 
 const buckets = new Map<string, Bucket>();
 const WINDOW_MS = 10 * 60 * 1000;
@@ -37,6 +40,22 @@ function validHistory(value: unknown): ClientMessage[] {
     })
     .map((item) => ({ role: item.role, content: item.content.slice(0, 3000) }))
     .slice(-8);
+}
+
+function extractResponseText(payload: OpenAIResponsePayload) {
+  if (typeof payload.output_text === "string" && payload.output_text.trim()) {
+    return payload.output_text.trim();
+  }
+
+  const parts: string[] = [];
+  for (const item of payload.output || []) {
+    if (item.type !== "message" || !Array.isArray(item.content)) continue;
+    for (const content of item.content) {
+      if (typeof content.text === "string" && content.text.trim()) parts.push(content.text);
+      else if (typeof content.refusal === "string" && content.refusal.trim()) parts.push(content.refusal);
+    }
+  }
+  return parts.join("\n").trim();
 }
 
 export async function GET() {
@@ -75,8 +94,7 @@ export async function POST(request: Request) {
       instructions: OCTOPUS_ASSISTANT_INSTRUCTIONS,
       input: [...history, { role: "user", content: message }],
       max_output_tokens: 700,
-      store: false,
-      stream: true
+      store: false
     }),
     signal: AbortSignal.timeout(60000)
   }).catch(() => null);
@@ -84,52 +102,23 @@ export async function POST(request: Request) {
   if (!upstream) {
     return NextResponse.json({ error: "Não foi possível conectar ao serviço de IA agora." }, { status: 502 });
   }
-  if (!upstream.ok || !upstream.body) {
+  if (!upstream.ok) {
     console.error("AI upstream request failed", { status: upstream.status });
     return NextResponse.json({ error: "A IA não conseguiu concluir a solicitação agora." }, { status: 502 });
   }
 
-  const encoder = new TextEncoder();
-  const decoder = new TextDecoder();
-  const reader = upstream.body.getReader();
+  const payload = await upstream.json().catch(() => null) as OpenAIResponsePayload | null;
+  if (!payload) {
+    return NextResponse.json({ error: "A IA retornou uma resposta inválida." }, { status: 502 });
+  }
 
-  const stream = new ReadableStream<Uint8Array>({
-    async start(controller) {
-      let buffer = "";
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const blocks = buffer.split(/\r?\n\r?\n/);
-          buffer = blocks.pop() || "";
+  const answer = extractResponseText(payload);
+  if (!answer) {
+    console.error("AI upstream returned no visible text");
+    return NextResponse.json({ error: "A IA concluiu o processamento, mas não retornou texto. Tente novamente." }, { status: 502 });
+  }
 
-          for (const block of blocks) {
-            const dataLines = block.split(/\r?\n/).filter((line) => line.startsWith("data:"));
-            for (const line of dataLines) {
-              const raw = line.slice(5).trim();
-              if (!raw || raw === "[DONE]") continue;
-              try {
-                const event = JSON.parse(raw) as { type?: string; delta?: string };
-                if (event.type === "response.output_text.delta" && event.delta) {
-                  controller.enqueue(encoder.encode(event.delta));
-                }
-              } catch {
-                // Eventos não textuais não são expostos ao navegador.
-              }
-            }
-          }
-        }
-      } catch {
-        controller.enqueue(encoder.encode("\nNão foi possível concluir a resposta. Tente novamente."));
-      } finally {
-        controller.close();
-        reader.releaseLock();
-      }
-    }
-  });
-
-  return new Response(stream, {
+  return new Response(answer, {
     headers: {
       "Content-Type": "text/plain; charset=utf-8",
       "Cache-Control": "no-store, no-cache, must-revalidate",
