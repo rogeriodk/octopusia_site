@@ -221,6 +221,12 @@ jobs:
         continue-on-error: true
         run: node scripts/smoke.mjs
 
+      - id: ai_live
+        name: Live AI test
+        if: steps.health.outcome == 'success'
+        continue-on-error: true
+        run: node scripts/ai-live.mjs
+
       - id: regression
         name: Regression tests
         if: steps.health.outcome == 'success'
@@ -234,6 +240,7 @@ jobs:
           STEP_TRIGGER: ${{ steps.trigger.outcome }}
           STEP_HEALTH: ${{ steps.health.outcome }}
           STEP_SMOKE: ${{ steps.smoke.outcome }}
+          STEP_AI_LIVE: ${{ steps.ai_live.outcome }}
           STEP_REGRESSION: ${{ steps.regression.outcome }}
         run: node scripts/deploy-report.mjs
 
@@ -249,7 +256,7 @@ jobs:
         run: |
           mkdir -p report-branch/reports/history
           STAMP="$(date -u +'%Y%m%dT%H%M%SZ')"
-          for F in runtime-reports/latest-deploy.json runtime-reports/latest-smoke.json runtime-reports/latest-regression.json; do
+          for F in runtime-reports/latest-deploy.json runtime-reports/latest-smoke.json runtime-reports/latest-ai-live.json runtime-reports/latest-regression.json; do
             if [ -f "$F" ]; then
               NAME="$(basename "$F")"
               KIND="${NAME#latest-}"
@@ -268,11 +275,12 @@ jobs:
             git push origin homologacao-reports
           fi
 
-      - name: Enforce deploy and regression gate
+      - name: Enforce deploy, AI and regression gate
         if: always()
         run: |
           test "${{ steps.config.outcome }}" = "success"
           test "${{ steps.trigger.outcome }}" = "success"
           test "${{ steps.health.outcome }}" = "success"
           test "${{ steps.smoke.outcome }}" = "success"
+          test "${{ steps.ai_live.outcome }}" = "success"
           test "${{ steps.regression.outcome }}" = "success"
