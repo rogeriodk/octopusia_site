@@ -1,0 +1,99 @@
+/* Mobile refinement layer based on human homologation screenshots.
+   Loaded after globals.css so it can tune proportions without disturbing desktop. */
+
+section[id]{scroll-margin-top:96px}
+
+@media (max-width: 760px){
+  html{scroll-padding-top:96px}
+  body{overflow-x:hidden}
+  .wrap{width:calc(100% - 32px)}
+
+  .siteHeader{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  .headerInner{height:88px;gap:12px}
+  .officialLogo{width:112px;max-height:72px}
+  .desktopNav,.headerActions{display:none!important}
+  .mobileNav{display:block!important;margin-left:auto}
+  .mobileNav summary{width:48px;height:48px;border-radius:14px;background:rgba(255,255,255,.96)}
+  .mobileNav summary span{width:20px;height:2.5px}
+  .mobileNav>div{top:56px;right:0;width:min(280px,calc(100vw - 32px));padding:10px;border-radius:16px}
+  .mobileNav a{min-height:44px;display:flex;align-items:center;padding:0 13px}
+
+  .heroGrid{grid-template-columns:1fr!important;gap:32px;padding:46px 0 54px!important}
+  .heroCopy{max-width:none}
+  .hero h1{font-size:clamp(42px,11.5vw,50px)!important;line-height:1.03!important;letter-spacing:-.048em!important;margin:18px 0 20px!important}
+  .lead{font-size:16px!important;line-height:1.64!important}
+  .actions{display:grid!important;grid-template-columns:1fr!important;gap:11px!important;margin:26px 0 24px!important}
+  .actions .btn{width:100%;min-height:52px}
+  .miniTrust{gap:11px 14px!important;line-height:1.35}
+
+  .aiPanel{min-height:0!important;padding:18px!important;border-radius:18px!important}
+  .aiPanelHeader{display:grid!important;grid-template-columns:1fr!important;gap:12px!important;margin-bottom:16px!important}
+  .onlineBadge{justify-self:start}
+  .aiConversation{min-height:130px!important;max-height:240px!important}
+  .message p{max-width:calc(100% - 42px)!important;font-size:12px!important}
+  .quickPrompts{gap:8px!important}
+  .quickPrompts button{min-height:44px!important;font-size:11px!important}
+  .aiInput input{font-size:16px!important}
+  .aiPrivacy{font-size:9.5px!important;line-height:1.5!important}
+
+  .section{padding:60px 0!important}
+  .sectionIntro,.sectionIntro.compact,.processGrid,.aboutGrid{grid-template-columns:1fr!important;gap:18px!important}
+  .sectionIntro h2,.processCopy h2,.aboutGrid h2,.diagnosticBox h2,.finalCtaBox h2{font-size:clamp(34px,9vw,42px)!important;line-height:1.08!important;letter-spacing:-.04em!important;margin:12px 0 16px!important}
+  .sectionIntro p,.processCopy p,.aboutGrid p,.diagnosticBox p,.finalCtaBox p{font-size:15px!important;line-height:1.62!important}
+
+  .solutionGrid{grid-template-columns:1fr!important;gap:14px!important;margin-top:28px!important}
+  .solutionCard{min-height:0!important;padding:22px!important;border-radius:17px!important}
+  .solutionCard h3{font-size:20px!important;margin:15px 0 8px!important}
+  .solutionCard p{font-size:14px!important;margin-bottom:18px!important}
+  .solutionCard a{margin-top:4px!important;font-size:12px!important}
+
+  .projectGrid{grid-template-columns:1fr!important;gap:16px!important;margin-top:28px!important}
+  .projectCard{grid-template-columns:1fr!important;min-height:0!important;border-radius:18px!important}
+  .projectVisual{min-height:150px!important}
+  .projectContent{padding:22px!important}
+  .projectContent h3{font-size:22px!important}
+  .projectContent p{font-size:14px!important;line-height:1.55!important}
+  .projectCard a{font-size:12px!important}
+
+  .capabilitiesBand{padding:52px 0!important}
+  .capabilityGrid{grid-template-columns:1fr!important;border-radius:17px!important;margin-top:22px!important}
+  .capabilityGrid>div{min-height:0!important;padding:17px 18px!important;border-right:0!important;border-bottom:1px solid #e7eaf1!important;gap:7px!important}
+  .capabilityGrid>div:last-child{border-bottom:0!important}
+  .capabilityGrid strong{font-size:15px!important;line-height:1.3!important}
+
+  .processCopy{position:static!important}
+  .processSteps{gap:10px!important}
+  .processSteps article{grid-template-columns:46px 1fr!important;padding:17px!important;gap:12px!important}
+  .processSteps article>span{width:38px;height:38px}
+  .processSteps strong{font-size:16px!important}
+  .processSteps p{font-size:13px!important}
+
+  .diagnosticSection{padding:0 0 60px!important}
+  .diagnosticBox{padding:26px 22px!important;border-radius:20px!important}
+  .diagnosticBox .btn{width:100%;min-height:52px}
+
+  .aboutSection{padding-top:60px!important;padding-bottom:60px!important}
+
+  .finalCta{padding:0 0 58px!important}
+  .finalCtaBox{padding:26px 22px!important;border-radius:20px!important;gap:24px!important}
+  .finalCtaBox .btn{width:100%;min-height:52px}
+
+  .siteFooter{padding-top:36px!important}
+  .footerGrid{grid-template-columns:1fr 1fr!important;gap:28px 22px!important}
+  .footerBrand{grid-column:1/-1!important}
+  .footerBrand .officialLogo{width:96px!important}
+  .footerGrid>div:nth-child(4){display:none!important}
+  .footerBottom{display:flex!important;flex-direction:column!important;gap:7px!important;padding-bottom:max(18px,env(safe-area-inset-bottom))!important}
+}
+
+@media (max-width: 420px){
+  .wrap{width:calc(100% - 28px)}
+  .headerInner{height:84px}
+  .officialLogo{width:106px}
+  .heroGrid{padding-top:40px!important}
+  .hero h1{font-size:40px!important}
+  .eyebrow{font-size:9px!important;line-height:1.3!important}
+  .sectionIntro h2,.processCopy h2,.aboutGrid h2,.diagnosticBox h2,.finalCtaBox h2{font-size:34px!important}
+  .footerGrid{grid-template-columns:1fr!important}
+  .footerBrand{grid-column:auto!important}
+}
