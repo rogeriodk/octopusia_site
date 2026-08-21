@@ -1,3 +1,4 @@
+import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { OCTOPUS_ASSISTANT_INSTRUCTIONS } from "../../../lib/octopus-knowledge";
 
@@ -6,14 +7,6 @@ export const dynamic = "force-dynamic";
 
 type ClientMessage = { role: "user" | "assistant"; content: string };
 type Bucket = { count: number; resetAt: number };
-type ResponseContent = { type?: string; text?: string; refusal?: string };
-type ResponseOutput = { type?: string; content?: ResponseContent[] };
-type OpenAIResponsePayload = { output_text?: string; output?: ResponseOutput[] };
-type StreamEvent = {
-  type?: string;
-  delta?: string;
-  response?: OpenAIResponsePayload;
-};
 
 const buckets = new Map<string, Bucket>();
 const WINDOW_MS = 10 * 60 * 1000;
@@ -47,23 +40,6 @@ function validHistory(value: unknown): ClientMessage[] {
     .slice(-8);
 }
 
-function extractResponseText(payload: OpenAIResponsePayload | undefined) {
-  if (!payload) return "";
-  if (typeof payload.output_text === "string" && payload.output_text.trim()) {
-    return payload.output_text.trim();
-  }
-
-  const parts: string[] = [];
-  for (const item of payload.output || []) {
-    if (item.type !== "message" || !Array.isArray(item.content)) continue;
-    for (const content of item.content) {
-      if (typeof content.text === "string" && content.text.trim()) parts.push(content.text);
-      else if (typeof content.refusal === "string" && content.refusal.trim()) parts.push(content.refusal);
-    }
-  }
-  return parts.join("\n").trim();
-}
-
 export async function GET() {
   return NextResponse.json({
     ok: true,
@@ -89,94 +65,66 @@ export async function POST(request: Request) {
   }
 
   const history = validHistory(body?.history);
-  const upstream = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${apiKey}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      model: process.env.OPENAI_MODEL || "gpt-5.6",
+  const input = [...history, { role: "user" as const, content: message }];
+  const model = process.env.OPENAI_MODEL || "gpt-5.6";
+  const client = new OpenAI({ apiKey, timeout: 60000, maxRetries: 1 });
+
+  let upstream;
+  try {
+    upstream = await client.responses.create({
+      model,
       instructions: OCTOPUS_ASSISTANT_INSTRUCTIONS,
-      input: [...history, { role: "user", content: message }],
-      max_output_tokens: 700,
+      input,
+      max_output_tokens: 900,
+      reasoning: { effort: "minimal" },
       store: false,
       stream: true
-    }),
-    signal: AbortSignal.timeout(60000)
-  }).catch(() => null);
-
-  if (!upstream) {
-    return NextResponse.json({ error: "Não foi possível conectar ao serviço de IA agora." }, { status: 502 });
-  }
-  if (!upstream.ok || !upstream.body) {
-    console.error("AI upstream request failed", { status: upstream.status });
+    });
+  } catch (error) {
+    console.error("AI upstream request failed", {
+      name: error instanceof Error ? error.name : "UnknownError"
+    });
     return NextResponse.json({ error: "A IA não conseguiu concluir a solicitação agora." }, { status: 502 });
   }
 
   const encoder = new TextEncoder();
-  const decoder = new TextDecoder();
-  const reader = upstream.body.getReader();
-
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
-      let buffer = "";
       let emitted = "";
-      let completedText = "";
-
-      const processLine = (line: string) => {
-        const trimmed = line.trim();
-        if (!trimmed.startsWith("data:")) return;
-        const raw = trimmed.slice(5).trim();
-        if (!raw || raw === "[DONE]") return;
-
-        try {
-          const event = JSON.parse(raw) as StreamEvent;
-          if (event.type === "response.output_text.delta" && typeof event.delta === "string" && event.delta) {
+      try {
+        for await (const event of upstream) {
+          if (event.type === "response.output_text.delta" && event.delta) {
             emitted += event.delta;
             controller.enqueue(encoder.encode(event.delta));
-            return;
           }
-
-          if (event.type === "response.completed") {
-            completedText = extractResponseText(event.response);
-          }
-        } catch {
-          // Linhas SSE não textuais ou desconhecidas são ignoradas.
-        }
-      };
-
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-
-          let newlineIndex = buffer.indexOf("\n");
-          while (newlineIndex >= 0) {
-            const line = buffer.slice(0, newlineIndex).replace(/\r$/, "");
-            buffer = buffer.slice(newlineIndex + 1);
-            processLine(line);
-            newlineIndex = buffer.indexOf("\n");
-          }
-        }
-
-        buffer += decoder.decode();
-        if (buffer.trim()) processLine(buffer);
-
-        if (!emitted.trim() && completedText.trim()) {
-          emitted = completedText;
-          controller.enqueue(encoder.encode(completedText));
         }
 
         if (!emitted.trim()) {
-          controller.enqueue(encoder.encode("Não consegui gerar uma resposta visível desta vez. Tente novamente."));
+          const fallback = await client.responses.create({
+            model,
+            instructions: OCTOPUS_ASSISTANT_INSTRUCTIONS,
+            input,
+            max_output_tokens: 900,
+            reasoning: { effort: "minimal" },
+            store: false
+          });
+          const fallbackText = fallback.output_text?.trim() || "";
+          if (fallbackText) {
+            emitted = fallbackText;
+            controller.enqueue(encoder.encode(fallbackText));
+          }
         }
-      } catch {
+
+        if (!emitted.trim()) {
+          controller.enqueue(encoder.encode("A IA concluiu o processamento, mas não retornou texto. Tente novamente."));
+        }
+      } catch (error) {
+        console.error("AI response stream failed", {
+          name: error instanceof Error ? error.name : "UnknownError"
+        });
         controller.enqueue(encoder.encode("Não foi possível concluir a resposta. Tente novamente."));
       } finally {
         controller.close();
-        reader.releaseLock();
       }
     }
   });
