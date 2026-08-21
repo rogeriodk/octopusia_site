@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BrandLogo } from "@/components/BrandLogo";
 import "./globals.css";
+import "./mobile-polish.css";
 
 export const metadata: Metadata = {
   title: "OCTOPUS IA | IA que entende. Soluções que transformam.",
