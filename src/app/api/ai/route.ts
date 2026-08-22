@@ -71,6 +71,22 @@ function safeUpstreamError(payload: OpenAIResponsePayload | null, status: number
   };
 }
 
+function diagnosticErrorResponse(
+  error: string,
+  errorCode: string,
+  status: number,
+  details: { upstreamStatus: number | null; upstreamCode: string | null; upstreamType: string | null }
+) {
+  return NextResponse.json({ error, errorCode, ...details }, {
+    status,
+    headers: {
+      "Cache-Control": "no-store",
+      "X-Octopus-AI-Error": errorCode,
+      ...(details.upstreamStatus ? { "X-Octopus-AI-Upstream-Status": String(details.upstreamStatus) } : {})
+    }
+  });
+}
+
 export async function GET() {
   return NextResponse.json({
     ok: true,
@@ -80,93 +96,94 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  if (rateLimited(clientKey(request))) {
-    return NextResponse.json({ error: "Muitas solicitações em sequência. Aguarde alguns minutos e tente novamente." }, { status: 429 });
-  }
-
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json({ error: "A IA do site ainda não está configurada neste ambiente." }, { status: 503 });
-  }
-
-  const body = await request.json().catch(() => null) as { message?: unknown; history?: unknown } | null;
-  const message = typeof body?.message === "string" ? body.message.trim().slice(0, 3000) : "";
-  if (!message) {
-    return NextResponse.json({ error: "Digite uma pergunta para continuar." }, { status: 400 });
-  }
-
-  const history = validHistory(body?.history);
-  const model = process.env.OPENAI_MODEL || "gpt-5.6";
-
-  let upstream: Response;
   try {
-    upstream = await fetch("https://api.openai.com/v1/responses", {
-      method: "POST",
+    if (rateLimited(clientKey(request))) {
+      return NextResponse.json({ error: "Muitas solicitações em sequência. Aguarde alguns minutos e tente novamente." }, { status: 429 });
+    }
+
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      return NextResponse.json({ error: "A IA do site ainda não está configurada neste ambiente." }, { status: 503 });
+    }
+
+    const body = await request.json().catch(() => null) as { message?: unknown; history?: unknown } | null;
+    const message = typeof body?.message === "string" ? body.message.trim().slice(0, 3000) : "";
+    if (!message) {
+      return NextResponse.json({ error: "Digite uma pergunta para continuar." }, { status: 400 });
+    }
+
+    const history = validHistory(body?.history);
+    const model = process.env.OPENAI_MODEL || "gpt-5.6";
+
+    let upstream: Response;
+    try {
+      upstream = await fetch("https://api.openai.com/v1/responses", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model,
+          instructions: OCTOPUS_ASSISTANT_INSTRUCTIONS,
+          input: [...history, { role: "user", content: message }],
+          max_output_tokens: 1200,
+          store: false
+        }),
+        signal: AbortSignal.timeout(60000),
+        cache: "no-store"
+      });
+    } catch (error) {
+      const errorName = error instanceof Error ? error.name.slice(0, 80) : "UnknownError";
+      console.error("AI transport failed", { errorName });
+      return diagnosticErrorResponse(
+        "Não foi possível conectar ao serviço de IA agora.",
+        "OPENAI_TRANSPORT_ERROR",
+        503,
+        { upstreamStatus: null, upstreamCode: null, upstreamType: errorName }
+      );
+    }
+
+    const payload = await upstream.json().catch(() => null) as OpenAIResponsePayload | null;
+    if (!upstream.ok) {
+      const details = safeUpstreamError(payload, upstream.status);
+      console.error("AI upstream request failed", details);
+      return diagnosticErrorResponse(
+        "A IA não conseguiu concluir a solicitação agora.",
+        "OPENAI_UPSTREAM_ERROR",
+        424,
+        details
+      );
+    }
+
+    const answer = extractResponseText(payload);
+    if (!answer) {
+      console.error("AI upstream returned no text", {
+        responseId: payload?.id || null,
+        status: payload?.status || null
+      });
+      return diagnosticErrorResponse(
+        "A IA concluiu o processamento, mas não retornou texto. Tente novamente.",
+        "EMPTY_OUTPUT",
+        422,
+        { upstreamStatus: upstream.status, upstreamCode: null, upstreamType: payload?.status || null }
+      );
+    }
+
+    return new Response(answer, {
       headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model,
-        instructions: OCTOPUS_ASSISTANT_INSTRUCTIONS,
-        input: [...history, { role: "user", content: message }],
-        max_output_tokens: 1200,
-        store: false
-      }),
-      signal: AbortSignal.timeout(60000),
-      cache: "no-store"
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-store, no-cache, must-revalidate"
+      }
     });
   } catch (error) {
     const errorName = error instanceof Error ? error.name.slice(0, 80) : "UnknownError";
-    console.error("AI transport failed", { errorName });
-    return NextResponse.json({
-      error: "Não foi possível conectar ao serviço de IA agora.",
-      errorCode: "OPENAI_TRANSPORT_ERROR",
-      upstreamStatus: null,
-      upstreamCode: null,
-      upstreamType: null
-    }, {
-      status: 502,
-      headers: { "X-Octopus-AI-Error": "OPENAI_TRANSPORT_ERROR" }
-    });
+    console.error("AI route failed", { errorName });
+    return diagnosticErrorResponse(
+      "A IA encontrou uma falha interna temporária.",
+      "AI_ROUTE_ERROR",
+      500,
+      { upstreamStatus: null, upstreamCode: null, upstreamType: errorName }
+    );
   }
-
-  const payload = await upstream.json().catch(() => null) as OpenAIResponsePayload | null;
-  if (!upstream.ok) {
-    const details = safeUpstreamError(payload, upstream.status);
-    console.error("AI upstream request failed", details);
-    return NextResponse.json({
-      error: "A IA não conseguiu concluir a solicitação agora.",
-      errorCode: "OPENAI_UPSTREAM_ERROR",
-      ...details
-    }, {
-      status: 502,
-      headers: {
-        "X-Octopus-AI-Error": "OPENAI_UPSTREAM_ERROR",
-        "X-Octopus-AI-Upstream-Status": String(upstream.status)
-      }
-    });
-  }
-
-  const answer = extractResponseText(payload);
-  if (!answer) {
-    console.error("AI upstream returned no text", {
-      responseId: payload?.id || null,
-      status: payload?.status || null
-    });
-    return NextResponse.json({
-      error: "A IA concluiu o processamento, mas não retornou texto. Tente novamente.",
-      errorCode: "EMPTY_OUTPUT",
-      upstreamStatus: upstream.status,
-      upstreamCode: null,
-      upstreamType: null
-    }, { status: 502 });
-  }
-
-  return new Response(answer, {
-    headers: {
-      "Content-Type": "text/plain; charset=utf-8",
-      "Cache-Control": "no-store, no-cache, must-revalidate"
-    }
-  });
 }
