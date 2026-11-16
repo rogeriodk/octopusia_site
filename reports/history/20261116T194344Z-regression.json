@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "kind": "regression",
+  "environment": "homologacao",
+  "commit": "e456462e035a49f731ce581b8e8d0433790b403d",
+  "startedAt": "2026-11-16T19:43:42.303Z",
+  "finishedAt": "2026-11-16T19:43:43.592Z",
+  "durationMs": 1289,
+  "summary": {
+    "total": 3,
+    "passed": 3,
+    "failed": 0,
+    "warned": 0
+  },
+  "cases": [
+    {
+      "name": "hero",
+      "path": "/",
+      "durationMs": 861,
+      "status": "PASS",
+      "warnings": []
+    },
+    {
+      "name": "solutions",
+      "path": "/",
+      "durationMs": 211,
+      "status": "PASS",
+      "warnings": []
+    },
+    {
+      "name": "interactive-area",
+      "path": "/",
+      "durationMs": 217,
+      "status": "PASS",
+      "warnings": []
+    }
+  ]
+}

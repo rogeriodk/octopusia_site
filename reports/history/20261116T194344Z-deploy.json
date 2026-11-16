@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "kind": "deploy",
+  "environment": "homologacao",
+  "commit": "e456462e035a49f731ce581b8e8d0433790b403d",
+  "runId": "43941650734",
+  "baseUrl": "https://homolog.octopusia.org",
+  "configuration": {
+    "homologBaseUrlPresent": true,
+    "easypanelDeployUrlPresent": null
+  },
+  "createdAt": "2026-11-16T19:43:43.779Z",
+  "diagnosis": "OK",
+  "summary": {
+    "total": 8,
+    "passed": 8,
+    "failed": 0,
+    "warned": 0
+  },
+  "cases": [
+    {
+      "name": "config",
+      "status": "SUCCESS"
+    },
+    {
+      "name": "trigger",
+      "status": "SUCCESS"
+    },
+    {
+      "name": "health",
+      "status": "SUCCESS"
+    },
+    {
+      "name": "smoke",
+      "status": "SUCCESS"
+    },
+    {
+      "name": "ai-live",
+      "status": "SUCCESS"
+    },
+    {
+      "name": "ui-setup",
+      "status": "SUCCESS"
+    },
+    {
+      "name": "ui-live",
+      "status": "SUCCESS"
+    },
+    {
+      "name": "regression",
+      "status": "SUCCESS"
+    }
+  ],
+  "healthObservation": {
+    "attempts": 5,
+    "httpCode": "200",
+    "reachable": true,
+    "ok": true,
+    "service": "octopus-ia-site",
+    "commit": "e456462e035a49f731ce581b8e8d0433790b403d"
+  }
+}
