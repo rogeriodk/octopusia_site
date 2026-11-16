@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "deploy",
   "environment": "homologacao",
-  "commit": "e456462e035a49f731ce581b8e8d0433790b403d",
-  "runId": "43941650734",
+  "commit": "c505ae07acffa8bfeab9cb05156672c2427d5d8b",
+  "runId": "43942953682",
   "baseUrl": "https://homolog.octopusia.org",
   "configuration": {
     "homologBaseUrlPresent": true,
     "easypanelDeployUrlPresent": null
   },
-  "createdAt": "2026-11-16T19:43:43.779Z",
+  "createdAt": "2026-11-16T19:50:57.324Z",
   "diagnosis": "OK",
   "summary": {
     "total": 8,
@@ -57,6 +57,6 @@
     "reachable": true,
     "ok": true,
     "service": "octopus-ia-site",
-    "commit": "e456462e035a49f731ce581b8e8d0433790b403d"
+    "commit": "c505ae07acffa8bfeab9cb05156672c2427d5d8b"
   }
 }
