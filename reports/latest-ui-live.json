@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "kind": "ui-live",
   "environment": "homologacao",
-  "commit": "c505ae07acffa8bfeab9cb05156672c2427d5d8b",
+  "commit": "428348728700bd75ba6b1892587e7483dd5d55b3",
   "baseUrl": "https://homolog.octopusia.org",
-  "startedAt": "2026-11-16T19:50:42.964Z",
-  "finishedAt": "2026-11-16T19:50:55.893Z",
-  "durationMs": 12929,
+  "startedAt": "2026-11-16T19:55:42.273Z",
+  "finishedAt": "2026-11-16T19:55:51.143Z",
+  "durationMs": 8870,
   "summary": {
     "total": 2,
     "passed": 2,
@@ -18,8 +18,8 @@
       "name": "ai-chat-desktop",
       "viewport": "1440x900",
       "status": "PASS",
-      "durationMs": 4767,
-      "answerPreview": "A OCTOPUS IA cria soluções personalizadas de inteligência artificial, automação e integração para resolver problemas reais de negócio.",
+      "durationMs": 3973,
+      "answerPreview": "A OCTOPUS IA cria soluções personalizadas de inteligência artificial, automação e software para resolver problemas reais de negócio.",
       "consoleErrors": [],
       "error": null
     },
@@ -27,8 +27,8 @@
       "name": "ai-chat-mobile",
       "viewport": "390x844",
       "status": "PASS",
-      "durationMs": 4411,
-      "answerPreview": "A OCTOPUS IA cria soluções personalizadas de IA, automação, integração de sistemas e software para resolver problemas reais de negócio.",
+      "durationMs": 4658,
+      "answerPreview": "A OCTOPUS IA cria soluções personalizadas de IA, automação e software para resolver problemas reais de negócio.",
       "consoleErrors": [],
       "error": null
     }
