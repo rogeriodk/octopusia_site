@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "kind": "security",
   "environment": "homologacao",
-  "commit": "c505ae07acffa8bfeab9cb05156672c2427d5d8b",
-  "runId": "43942953682",
-  "createdAt": "2026-11-16T19:47:55.462Z",
+  "commit": "428348728700bd75ba6b1892587e7483dd5d55b3",
+  "runId": "43943873175",
+  "createdAt": "2026-11-16T19:53:14.187Z",
   "scanStatus": "SUCCESS",
   "blocking": false,
   "summary": {
