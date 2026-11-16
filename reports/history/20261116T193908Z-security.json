@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "kind": "security",
+  "environment": "homologacao",
+  "commit": "3f2ba6f271c1f0faf91bf393991152b772dfe459",
+  "runId": "43941262110",
+  "createdAt": "2026-11-16T19:38:12.660Z",
+  "scanStatus": "SUCCESS",
+  "blocking": false,
+  "summary": {
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "vulnerabilities": []
+}

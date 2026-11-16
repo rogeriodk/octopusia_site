@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "ci",
   "environment": "homologacao",
-  "commit": "057c2dc7768e69c8b3fee67088666959fcf6e94d",
-  "runId": "43939173609",
+  "commit": "3f2ba6f271c1f0faf91bf393991152b772dfe459",
+  "runId": "43941262110",
   "applicationVersion": "0.1.0",
-  "createdAt": "2026-11-16T19:27:00.591Z",
+  "createdAt": "2026-11-16T19:38:58.990Z",
   "summary": {
     "total": 7,
-    "passed": 7,
-    "failed": 0,
+    "passed": 6,
+    "failed": 1,
     "warned": 0
   },
   "cases": [
@@ -23,7 +23,7 @@
     },
     {
       "name": "lint",
-      "status": "SUCCESS"
+      "status": "FAILURE"
     },
     {
       "name": "unit",
