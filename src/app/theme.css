@@ -1,0 +1,188 @@
+/* Marca, componentes novos e tema escuro.
+   Carregado depois de globals.css e mobile-polish.css. */
+
+:root{--brand-coral:#ff7a85;--brand-lav:#b9a7f5;--brand-night:#0f0d2e}
+html{color-scheme:light}
+html[data-theme="dark"]{color-scheme:dark}
+
+/* ---------- Marca ---------- */
+.brandMark{display:inline-flex;align-items:center;gap:10px}
+.brandMark .officialLogo{width:46px;height:46px;max-height:none}
+.brandMark.compact .officialLogo{width:40px;height:40px}
+.brandWord{font-size:20px;font-weight:850;letter-spacing:-.03em;color:#2c2585;white-space:nowrap}
+.brandWord b{background:linear-gradient(90deg,#8a6cf0,var(--brand-coral));background-clip:text;-webkit-background-clip:text;color:transparent}
+.siteFooter .brandWord{color:#fff}
+.siteFooter .officialLogo{filter:none}
+.hero h1 em{background:linear-gradient(90deg,#6f63df,var(--brand-coral))}
+
+/* ---------- Botão de tema ---------- */
+.themeToggle{display:inline-grid;place-items:center;width:42px;height:42px;flex:0 0 auto;border:1px solid var(--line);border-radius:10px;background:#fff;color:#4b4a8a;cursor:pointer;transition:background .2s ease,color .2s ease}
+.themeToggle:hover{background:#f5f4ff;color:#6f63df}
+.themeToggle:focus-visible,.btn:focus-visible,.channel:focus-visible{outline:3px solid rgba(111,99,223,.45);outline-offset:2px}
+
+.aiPrivacy a{text-decoration:underline}
+
+/* ---------- Ícones ---------- */
+.solutionIcon svg{width:24px;height:24px}
+.shieldMark svg,.chartMark svg{width:12px;height:12px}
+.solutionGrid{grid-template-columns:repeat(3,1fr)}
+.solutionCard{min-height:230px}
+.solutionCard.coral{background:linear-gradient(145deg,#fffafa,#fff0f1)}
+.solutionCard.coral .solutionIcon,.solutionCard.coral a{color:#d9505e}
+.solutionCard.indigo{background:linear-gradient(145deg,#fbfbff,#efeeff)}
+.solutionCard.indigo .solutionIcon{color:#4f46c8}
+.projectVisual5{background:linear-gradient(145deg,#ffe4e7,#fbc9cf)}
+.projectVisual6{background:linear-gradient(145deg,#ece9ff,#d6d0fb)}
+
+/* ---------- Contato ---------- */
+.contactSection{padding:0 0 80px}
+.contactBox{display:grid;grid-template-columns:1fr minmax(0,1.05fr);gap:48px;align-items:start;padding:45px 48px;border-radius:24px;background:radial-gradient(circle at 92% 12%,rgba(255,122,133,.2),transparent 30%),linear-gradient(135deg,#171f4d,#262062);color:#fff}
+.contactCopy h2{font-size:clamp(31px,3.1vw,43px);line-height:1.12;letter-spacing:-.035em;margin:12px 0;color:#fff}
+.contactCopy p{color:#c4c9e0;line-height:1.7;margin:0 0 24px}
+.contactChannels{display:grid;gap:10px}
+.channel{display:flex;align-items:center;gap:13px;padding:13px 15px;border:1px solid rgba(255,255,255,.14);border-radius:14px;background:rgba(255,255,255,.05);color:#fff;transition:background .2s ease}
+.channel:hover{background:rgba(255,255,255,.1)}
+.channel svg{flex:0 0 auto;color:var(--brand-coral)}
+.channel strong{display:block;font-size:14px}
+.channel small{display:block;color:#b9bfd8;font-size:12px;margin-top:2px}
+.leadForm{display:grid;gap:13px;padding:24px;border-radius:18px;background:#fff;color:var(--ink)}
+.leadRow{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.leadForm label{display:grid;gap:6px;font-size:12px;font-weight:750;color:#3d4766}
+.leadForm input,.leadForm textarea{width:100%;border:1px solid #dfe3ec;border-radius:10px;padding:11px 12px;font-size:14px;color:var(--ink);background:#fff;font-family:inherit;resize:vertical}
+.leadForm input:focus,.leadForm textarea:focus{outline:0;border-color:#aaa2e9;box-shadow:0 0 0 3px rgba(111,99,223,.12)}
+.leadForm .consent{display:flex;align-items:flex-start;gap:9px;font-weight:500;color:#5f6c83;line-height:1.5}
+.leadForm .consent input{width:18px;height:18px;margin-top:1px;flex:0 0 auto}
+.leadForm .consent a{color:#5b4fd0;text-decoration:underline}
+.leadForm .btn{justify-self:start;border:0;cursor:pointer}
+.leadForm .btn:disabled{opacity:.6;cursor:wait}
+.honeypot{position:absolute!important;left:-9999px!important;width:1px;height:1px;overflow:hidden}
+.leadError{margin:0;color:#c0313f;font-size:13px}
+.leadSent{align-content:center;min-height:240px}
+.leadSent strong{font-size:20px}
+.leadSent p{margin:0;color:#5f6c83;line-height:1.6}
+
+/* ---------- Página de privacidade ---------- */
+.legalPage{padding:64px 0 80px}
+.legalPage .wrap{max-width:780px}
+.legalPage h1{font-size:clamp(34px,4vw,48px);letter-spacing:-.04em;margin:14px 0 8px;color:#131d43}
+.legalPage h2{font-size:21px;margin:34px 0 10px;color:#1a2347}
+.legalPage p,.legalPage li,.legalPage td,.legalPage th{color:#4f5b74;line-height:1.7;font-size:15px}
+.legalPage .updated{color:#8a93a8;font-size:13px}
+.legalPage table{width:100%;border-collapse:collapse;margin:12px 0}
+.legalPage th,.legalPage td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid #e6e9f2;font-size:14px}
+.legalPage th{color:#1a2347}
+.legalPage a{color:#5b4fd0;text-decoration:underline}
+.tableScroll{overflow-x:auto}
+
+@media(max-width:1020px){.solutionGrid{grid-template-columns:repeat(2,1fr)}.contactBox{grid-template-columns:1fr}}
+@media(max-width:840px){.brandWord{font-size:18px}}
+@media(max-width:760px){
+  .themeToggle{width:48px;height:48px;border-radius:14px}
+  .mobileNav{margin-left:0!important}
+  .brandMark .officialLogo{width:42px;height:42px}
+  .contactSection{padding:0 0 58px}
+  .contactBox{padding:26px 20px;border-radius:20px;gap:24px}
+  .leadForm{padding:18px}
+  .leadRow{grid-template-columns:1fr}
+  .leadForm .btn{width:100%;min-height:52px}
+  .projectVisual5,.projectVisual6{min-height:150px}
+}
+@media(max-width:420px){.brandWord{font-size:16px}.brandMark{gap:7px}}
+
+/* =========================================================
+   TEMA ESCURO
+   ========================================================= */
+html[data-theme="dark"] body{background:var(--brand-night);color:#ecebff}
+html[data-theme="dark"] .siteHeader{background:rgba(15,13,46,.9);border-bottom-color:rgba(185,167,245,.16)}
+html[data-theme="dark"] .brandWord{color:#fff}
+html[data-theme="dark"] .desktopNav{color:#c3bfe6}
+html[data-theme="dark"] .desktopNav a:hover{color:var(--brand-coral)}
+html[data-theme="dark"] .themeToggle,
+html[data-theme="dark"] .mobileNav summary{background:#1c1949!important;border-color:rgba(185,167,245,.25);color:#e9e5ff}
+html[data-theme="dark"] .mobileNav summary span{background:#e9e5ff}
+html[data-theme="dark"] .mobileNav>div{background:#1c1949;border-color:rgba(185,167,245,.22)}
+html[data-theme="dark"] .mobileNav a:hover{background:#262260}
+html[data-theme="dark"] .headerCta,
+html[data-theme="dark"] .primary,
+html[data-theme="dark"] .mobileNav .mobileCta{background:linear-gradient(135deg,#ff7a85,#8a6cf0);box-shadow:0 12px 28px rgba(255,122,133,.18)}
+
+html[data-theme="dark"] .hero{background:radial-gradient(circle at 8% 76%,rgba(255,122,133,.12),transparent 26%),radial-gradient(circle at 92% 15%,rgba(138,108,240,.22),transparent 32%),linear-gradient(180deg,#0f0d2e,#141139)}
+html[data-theme="dark"] .hero:after{background-image:radial-gradient(#b9a7f5 1px,transparent 1px)}
+html[data-theme="dark"] .hero h1,
+html[data-theme="dark"] .sectionIntro h2,html[data-theme="dark"] .processCopy h2,html[data-theme="dark"] .aboutGrid h2,html[data-theme="dark"] .diagnosticBox h2,
+html[data-theme="dark"] .solutionCard h3,html[data-theme="dark"] .projectContent h3,html[data-theme="dark"] .legalPage h1,html[data-theme="dark"] .legalPage h2{color:#fff}
+html[data-theme="dark"] .lead,
+html[data-theme="dark"] .sectionIntro p,html[data-theme="dark"] .processCopy p,html[data-theme="dark"] .aboutGrid p,html[data-theme="dark"] .diagnosticBox p,
+html[data-theme="dark"] .solutionCard p,html[data-theme="dark"] .projectContent p,html[data-theme="dark"] .processSteps p{color:#bdb8e0}
+html[data-theme="dark"] .eyebrow{background:rgba(185,167,245,.14);color:#cfc3ff}
+html[data-theme="dark"] .light{background:transparent;border-color:rgba(185,167,245,.35);color:#fff}
+html[data-theme="dark"] .miniTrust{color:#c3bfe6}
+html[data-theme="dark"] .greenDot,html[data-theme="dark"] .shieldMark,html[data-theme="dark"] .chartMark{background:rgba(127,214,170,.12);color:#7fd6aa}
+
+html[data-theme="dark"] .aiPanel{background:#18153f;border-color:rgba(185,167,245,.2);box-shadow:0 24px 70px rgba(0,0,0,.35)}
+html[data-theme="dark"] .aiSpark{background:rgba(255,122,133,.14);color:var(--brand-coral)}
+html[data-theme="dark"] .aiPanelHeader strong{color:#fff}
+html[data-theme="dark"] .aiPanelHeader small,html[data-theme="dark"] .aiPrivacy{color:#a9a4cf}
+html[data-theme="dark"] .onlineBadge.isOnline{background:rgba(127,214,170,.12);color:#8fe0b6}
+html[data-theme="dark"] .message p{background:#221e52;color:#e3e0ff}
+html[data-theme="dark"] .message.user p{background:#2c2768;color:#f1efff}
+html[data-theme="dark"] .message.user .messageAvatar{background:#2c2768;color:#d9d4ff}
+html[data-theme="dark"] .quickPrompts button{background:#1d1a48;border-color:rgba(185,167,245,.2);color:#d6d0ff}
+html[data-theme="dark"] .quickPrompts button span{background:rgba(185,167,245,.12)}
+html[data-theme="dark"] .quickPrompts button:hover:not(:disabled){background:#252157;border-color:rgba(185,167,245,.4)}
+html[data-theme="dark"] .quickPrompts button:nth-child(1),html[data-theme="dark"] .quickPrompts button:nth-child(2){color:#d6d0ff}
+html[data-theme="dark"] .aiInput{background:#120f33;border-color:rgba(185,167,245,.25);box-shadow:none}
+html[data-theme="dark"] .aiInput input{color:#fff}
+html[data-theme="dark"] .aiInput input::placeholder{color:#8f89b8}
+
+html[data-theme="dark"] .solutionsSection,html[data-theme="dark"] .capabilitiesBand{background:var(--brand-night)}
+html[data-theme="dark"] .solutionCard{border-color:rgba(185,167,245,.16);background:#17143d}
+html[data-theme="dark"] .solutionCard .solutionIcon{background:rgba(255,255,255,.06)}
+html[data-theme="dark"] .solutionCard.green .solutionIcon,html[data-theme="dark"] .solutionCard.green a{color:#7fd6aa}
+html[data-theme="dark"] .solutionCard.blue .solutionIcon{color:#8fb3ff}
+html[data-theme="dark"] .solutionCard.violet .solutionIcon,html[data-theme="dark"] .solutionCard.indigo .solutionIcon{color:#c3b4ff}
+html[data-theme="dark"] .solutionCard.teal .solutionIcon,html[data-theme="dark"] .solutionCard.teal a{color:#76d6d6}
+html[data-theme="dark"] .solutionCard.coral .solutionIcon,html[data-theme="dark"] .solutionCard.coral a{color:var(--brand-coral)}
+html[data-theme="dark"] .solutionCard a,html[data-theme="dark"] .projectCard a,html[data-theme="dark"] .textLink{color:#c3b4ff}
+
+html[data-theme="dark"] .projectsSection{background:#120f33;border-color:rgba(185,167,245,.12)}
+html[data-theme="dark"] .projectCard{background:#18153f;border-color:rgba(185,167,245,.16);box-shadow:none}
+html[data-theme="dark"] .projectVisual>span{background:rgba(15,13,46,.55);color:#fff}
+html[data-theme="dark"] .projectVisual1{background:linear-gradient(145deg,#1f4a3a,#2c6b52)}
+html[data-theme="dark"] .projectVisual2{background:linear-gradient(145deg,#5a2a3f,#8a3d52)}
+html[data-theme="dark"] .projectVisual3{background:linear-gradient(145deg,#273a72,#33509a)}
+html[data-theme="dark"] .projectVisual4{background:linear-gradient(145deg,#1d4c50,#256b70)}
+html[data-theme="dark"] .projectVisual5{background:linear-gradient(145deg,#3a2a74,#5040a0)}
+html[data-theme="dark"] .projectVisual6{background:linear-gradient(145deg,#4a2a66,#6b3c8f)}
+html[data-theme="dark"] .projectTag{color:var(--brand-coral)}
+html[data-theme="dark"] .capRow span{background:rgba(185,167,245,.08);border-color:rgba(185,167,245,.2);color:#cfc9f2}
+
+html[data-theme="dark"] .capabilityGrid{border-color:rgba(185,167,245,.16)}
+html[data-theme="dark"] .capabilityGrid>div{border-color:rgba(185,167,245,.16)!important}
+html[data-theme="dark"] .capabilityGrid span{color:var(--brand-coral)}
+html[data-theme="dark"] .capabilityGrid strong{color:#fff}
+
+html[data-theme="dark"] .processSection{background:linear-gradient(180deg,#120f33,var(--brand-night))}
+html[data-theme="dark"] .processSteps article{background:#18153f;border-color:rgba(185,167,245,.16)}
+html[data-theme="dark"] .processSteps article>span{background:rgba(255,122,133,.14);color:var(--brand-coral)}
+html[data-theme="dark"] .processSteps strong{color:#fff}
+
+html[data-theme="dark"] .diagnosticBox{border-color:rgba(185,167,245,.18);background:radial-gradient(circle at 90% 20%,rgba(255,122,133,.16),transparent 28%),linear-gradient(135deg,#1c1850,#15123c)}
+html[data-theme="dark"] .aboutSection{border-color:rgba(185,167,245,.12)}
+
+html[data-theme="dark"] .contactBox{background:radial-gradient(circle at 92% 12%,rgba(255,122,133,.22),transparent 30%),linear-gradient(135deg,#1e1a58,#2a2370);border:1px solid rgba(185,167,245,.2)}
+html[data-theme="dark"] .leadForm{background:#120f33;color:#ecebff;border:1px solid rgba(185,167,245,.2)}
+html[data-theme="dark"] .leadForm label{color:#d6d0ff}
+html[data-theme="dark"] .leadForm input,html[data-theme="dark"] .leadForm textarea{background:#18153f;border-color:rgba(185,167,245,.25);color:#fff}
+html[data-theme="dark"] .leadForm .consent,html[data-theme="dark"] .leadSent p{color:#bdb8e0}
+html[data-theme="dark"] .leadForm .consent a,html[data-theme="dark"] .legalPage a{color:#c3b4ff}
+html[data-theme="dark"] .leadError{color:#ff9aa3}
+
+html[data-theme="dark"] .siteFooter{background:#0a0822}
+html[data-theme="dark"] .legalPage p,html[data-theme="dark"] .legalPage li,html[data-theme="dark"] .legalPage td,html[data-theme="dark"] .legalPage th{color:#c9c5e8}
+html[data-theme="dark"] .legalPage th{color:#fff}
+html[data-theme="dark"] .legalPage th,html[data-theme="dark"] .legalPage td{border-color:rgba(185,167,245,.16)}
+
+@media(max-width:760px){
+  html[data-theme="dark"] .capabilityGrid>div{border-bottom:1px solid rgba(185,167,245,.16)!important}
+}

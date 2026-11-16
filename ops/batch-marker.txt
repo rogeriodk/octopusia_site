@@ -1,1 +1,0 @@
-This file will be removed after the responsive layout batch is committed.

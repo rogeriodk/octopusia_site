@@ -1,17 +1,24 @@
 import AIInteractive from "../components/ai-interactive";
+import { icons } from "../components/Icons";
+import LeadForm from "../components/LeadForm";
+import { CONTACT, whatsappLink } from "../lib/contact";
 
 const solutions = [
-  { icon: "⚖", title: "IA Jurídica", text: "Converse com contratos, documentos e contexto jurídico com apoio de IA e evidências.", color: "green" },
-  { icon: "⌘", title: "Automação", text: "Automatize tarefas repetitivas e conecte sistemas, dados e Inteligência Artificial.", color: "blue" },
-  { icon: "◌", title: "Atendimento Inteligente", text: "Assistentes que entendem contexto, consultam conhecimento e ajudam a resolver solicitações.", color: "violet" },
-  { icon: "▤", title: "Documentos & Engenharia", text: "Extração, interpretação e organização inteligente de documentos técnicos.", color: "teal" }
+  { icon: icons.scale, title: "IA Jurídica", text: "Converse com contratos, peças e a base do escritório, com respostas apoiadas em evidências.", color: "green" },
+  { icon: icons.truck, title: "E-commerce & Entregas", text: "Copiloto que responde compradores sobre pedidos e entregas com os dados reais da loja e do rastreio.", color: "coral" },
+  { icon: icons.chat, title: "Atendimento Inteligente", text: "Assistentes que entendem contexto, consultam conhecimento e ajudam a resolver solicitações.", color: "violet" },
+  { icon: icons.blueprint, title: "Documentos & Engenharia", text: "Do projeto em DWG à lista de materiais em planilha, com a origem de cada quantidade.", color: "teal" },
+  { icon: icons.trophy, title: "Esporte & Equipes", text: "Ranking, agenda e um assistente que responde atletas e pais, para academias e clubes.", color: "indigo" },
+  { icon: icons.flow, title: "Automação", text: "Automatize tarefas repetitivas e conecte sistemas, dados e Inteligência Artificial.", color: "blue" }
 ];
 
 const projects = [
   { tag: "DOCUMENTOS + IA", title: "IA Jurídica", text: "Experiência de conversa com documentos, contexto processual e pesquisa orientada por evidências.", caps: ["RAG", "Documentos", "Contexto"] },
-  { tag: "CONHECIMENTO", title: "Central de Conhecimento Escolar", text: "Assistente contextual que transforma documentos institucionais em respostas úteis para atendimento.", caps: ["Busca semântica", "Sessão", "Auditoria"] },
-  { tag: "PRODUTO DIGITAL", title: "Aproxima Fidelização", text: "Produto digital para relacionamento, cartão de fidelidade, campanhas e experiências do cliente.", caps: ["SaaS", "PWA", "Automação"] },
-  { tag: "ENGENHARIA", title: "Engenharia Documental", text: "Leitura e estruturação de documentos técnicos para apoiar análise, quantitativos e reconstrução de informação.", caps: ["Extração", "Dados", "IA"] }
+  { tag: "E-COMMERCE", title: "Copiloto de Entregas", text: "Responde \"cadê meu pedido?\" no WhatsApp e nos marketplaces, conecta operadores logísticos e avisa a equipe sobre atrasos antes da reclamação.", caps: ["Marketplaces", "Logística", "WhatsApp"] },
+  { tag: "CONHECIMENTO", title: "Central de Conhecimento Escolar", text: "Assistente contextual que transforma documentos institucionais em respostas úteis para as famílias, com console para a central.", caps: ["Busca semântica", "Sessão", "Auditoria"] },
+  { tag: "ENGENHARIA", title: "Engenharia Documental", text: "Lê projetos em DWG ou DXF de qualquer disciplina e gera a lista de materiais em planilha. Cada quantidade mostra se veio de tabela do desenho, medição ou inferência, e divergências viram alerta.", caps: ["DWG/DXF", "Lista de materiais", "Rastreabilidade"] },
+  { tag: "ESPORTE", title: "Central do Atleta", text: "Ranking automático de simples e duplas, agenda, avisos e um assistente que responde atletas e pais da equipe.", caps: ["Ranking", "Agenda", "Assistente"] },
+  { tag: "PRODUTO DIGITAL", title: "Aproxima Fidelização", text: "Produto digital para relacionamento, cartão de fidelidade, campanhas e experiências do cliente.", caps: ["SaaS", "PWA", "Automação"] }
 ];
 
 const capabilities = [
@@ -23,6 +30,7 @@ const capabilities = [
 ];
 
 export default function Home() {
+  const whatsapp = whatsappLink();
   return (
     <main>
       <section className="hero" id="inicio">
@@ -37,8 +45,8 @@ export default function Home() {
             </div>
             <div className="miniTrust">
               <span><i className="greenDot" /> Tecnologia aplicada</span>
-              <span><i className="shieldMark">✓</i> Segurança por desenho</span>
-              <span><i className="chartMark">↗</i> Foco em resultado</span>
+              <span><i className="shieldMark">{icons.shield}</i> Segurança por desenho</span>
+              <span><i className="chartMark">{icons.trend}</i> Foco em resultado</span>
             </div>
           </div>
           <AIInteractive />
@@ -131,10 +139,19 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="finalCta" id="contato">
-        <div className="wrap finalCtaBox">
-          <div><span className="eyebrow inverted">VAMOS CRIAR ALGO</span><h2>O próximo projeto pode começar com uma conversa.</h2><p>Descreva o processo, problema ou ideia. A IA ajuda a estruturar o primeiro diagnóstico.</p></div>
-          <a className="btn whiteButton" href="#ia">Falar com a OCTOPUS <span>→</span></a>
+      <section className="contactSection" id="contato">
+        <div className="wrap contactBox">
+          <div className="contactCopy">
+            <span className="eyebrow inverted">VAMOS CRIAR ALGO</span>
+            <h2>O próximo projeto pode começar com uma conversa.</h2>
+            <p>Conte o processo, o problema ou a ideia. Respondemos em até 1 dia útil, ou você pode conversar agora com a IA do site.</p>
+            <div className="contactChannels">
+              {whatsapp && <a className="channel" href={whatsapp} target="_blank" rel="noopener noreferrer">{icons.whatsapp}<span><strong>WhatsApp</strong><small>Fale direto com a equipe</small></span></a>}
+              <a className="channel" href={`mailto:${CONTACT.email}`}>{icons.mail}<span><strong>E-mail</strong><small>{CONTACT.email}</small></span></a>
+              <a className="channel" href="#ia">{icons.spark}<span><strong>IA ao vivo</strong><small>Diagnóstico rápido, sem cadastro</small></span></a>
+            </div>
+          </div>
+          <LeadForm />
         </div>
       </section>
     </main>

@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { QUICK_PROMPTS } from "../lib/octopus-knowledge";
+import { icons } from "./Icons";
 
 type Message = { role: "user" | "assistant"; content: string };
 type AiStatus = { configured: boolean; model?: string };
@@ -107,7 +109,7 @@ export default function AIInteractive() {
     <section className="aiPanel" id="ia" aria-label="Área de IA Interativa" data-testid="ai-interactive">
       <div className="aiPanelHeader">
         <div>
-          <span className="aiSpark">✦</span>
+          <span className="aiSpark">{icons.spark}</span>
           <div><strong>Área de IA Interativa</strong><small>{status}</small></div>
         </div>
         <span className={`onlineBadge ${aiStatus.configured ? "isOnline" : "isPending"}`}>
@@ -137,7 +139,7 @@ export default function AIInteractive() {
         <button type="submit" aria-label="Enviar mensagem" disabled={busy || !input.trim()}>➤</button>
       </form>
 
-      <p className="aiPrivacy">Não envie senhas, documentos pessoais ou dados sensíveis. As conversas desta demonstração não são usadas como cadastro comercial automático.</p>
+      <p className="aiPrivacy">Não envie senhas, documentos pessoais ou dados sensíveis. As mensagens são processadas por um provedor de IA para gerar a resposta e não viram cadastro comercial. <Link href="/privacidade">Política de privacidade</Link>.</p>
     </section>
   );
 }
