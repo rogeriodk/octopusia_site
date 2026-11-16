@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "regression",
   "environment": "homologacao",
-  "commit": "816c951f787029e4f0152f14842febd48bbaa07a",
-  "startedAt": "2026-11-16T19:22:46.131Z",
-  "finishedAt": "2026-11-16T19:22:47.413Z",
-  "durationMs": 1282,
+  "commit": "057c2dc7768e69c8b3fee67088666959fcf6e94d",
+  "startedAt": "2026-11-16T19:28:57.231Z",
+  "finishedAt": "2026-11-16T19:28:58.486Z",
+  "durationMs": 1255,
   "summary": {
     "total": 3,
     "passed": 3,
@@ -16,21 +16,21 @@
     {
       "name": "hero",
       "path": "/",
-      "durationMs": 862,
+      "durationMs": 848,
       "status": "PASS",
       "warnings": []
     },
     {
       "name": "solutions",
       "path": "/",
-      "durationMs": 209,
+      "durationMs": 193,
       "status": "PASS",
       "warnings": []
     },
     {
       "name": "interactive-area",
       "path": "/",
-      "durationMs": 210,
+      "durationMs": 213,
       "status": "PASS",
       "warnings": []
     }

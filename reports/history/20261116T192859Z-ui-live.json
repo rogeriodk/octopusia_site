@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "kind": "ui-live",
+  "environment": "homologacao",
+  "commit": "057c2dc7768e69c8b3fee67088666959fcf6e94d",
+  "baseUrl": "https://homolog.octopusia.org",
+  "startedAt": "2026-11-16T19:28:47.420Z",
+  "finishedAt": "2026-11-16T19:28:57.180Z",
+  "durationMs": 9760,
+  "summary": {
+    "total": 2,
+    "passed": 2,
+    "failed": 0,
+    "warned": 0
+  },
+  "cases": [
+    {
+      "name": "ai-chat-desktop",
+      "viewport": "1440x900",
+      "status": "PASS",
+      "durationMs": 4838,
+      "answerPreview": "A OCTOPUS IA cria soluções personalizadas de inteligência artificial, automação e integração para resolver problemas reais de negócio.",
+      "consoleErrors": [],
+      "error": null
+    },
+    {
+      "name": "ai-chat-mobile",
+      "viewport": "390x844",
+      "status": "PASS",
+      "durationMs": 4595,
+      "answerPreview": "A OCTOPUS IA cria soluções personalizadas de inteligência artificial, automação e software para resolver problemas reais de negócios.",
+      "consoleErrors": [],
+      "error": null
+    }
+  ],
+  "failureArtifacts": []
+}
