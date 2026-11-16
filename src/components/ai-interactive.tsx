@@ -7,6 +7,7 @@ import { icons } from "./Icons";
 
 type Message = { role: "user" | "assistant"; content: string };
 type AiStatus = { configured: boolean; model?: string };
+type Handoff = "closed" | "open" | "sending" | "sent" | "error";
 
 const initialMessage: Message = {
   role: "assistant",
@@ -20,6 +21,9 @@ export default function AIInteractive() {
   const [status, setStatus] = useState("Pronta para conversar");
   const [aiStatus, setAiStatus] = useState<AiStatus>({ configured: false });
   const conversationRef = useRef<HTMLDivElement>(null);
+  const sessionRef = useRef<string | null>(null);
+  const [handoff, setHandoff] = useState<Handoff>("closed");
+  const [handoffError, setHandoffError] = useState("");
 
   useEffect(() => {
     fetch("/api/ai", { cache: "no-store" })
@@ -44,6 +48,9 @@ export default function AIInteractive() {
     if (!message || busy) return;
 
     const history = recentHistory;
+    if (!sessionRef.current) {
+      sessionRef.current = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `s-${Math.random().toString(36).slice(2, 14)}`;
+    }
     setInput("");
     setBusy(true);
     setStatus("Entendendo sua pergunta...");
@@ -53,7 +60,7 @@ export default function AIInteractive() {
       const response = await fetch("/api/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, history })
+        body: JSON.stringify({ message, history, session: sessionRef.current })
       });
 
       if (!response.ok) {
@@ -100,6 +107,36 @@ export default function AIInteractive() {
     }
   }
 
+  async function sendHandoff(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = Object.fromEntries(new FormData(event.currentTarget).entries());
+    setHandoff("sending");
+    setHandoffError("");
+    try {
+      const response = await fetch("/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: data.name,
+          contact: data.contact,
+          website: data.website,
+          consent: data.consent === "on",
+          message: "Conversa enviada pela IA do site.",
+          source: "chat",
+          transcript: messages.slice(1).filter((item) => item.content.trim())
+        })
+      });
+      const result = await response.json().catch(() => null) as { error?: string } | null;
+      if (!response.ok) throw new Error(result?.error || "Não foi possível enviar agora.");
+      setHandoff("sent");
+    } catch (err) {
+      setHandoffError(err instanceof Error ? err.message : "Não foi possível enviar agora.");
+      setHandoff("error");
+    }
+  }
+
+  const userTurns = messages.filter((item) => item.role === "user").length;
+
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     void sendMessage(input);
@@ -139,7 +176,37 @@ export default function AIInteractive() {
         <button type="submit" aria-label="Enviar mensagem" disabled={busy || !input.trim()}>➤</button>
       </form>
 
-      <p className="aiPrivacy">Não envie senhas, documentos pessoais ou dados sensíveis. As mensagens são processadas por um provedor de IA para gerar a resposta e não viram cadastro comercial. <Link href="/privacidade">Política de privacidade</Link>.</p>
+      {userTurns > 0 && handoff === "closed" && (
+        <button type="button" className="handoffOpen" onClick={() => setHandoff("open")} disabled={busy} data-testid="ai-handoff-open">
+          Enviar esta conversa para a equipe <span>→</span>
+        </button>
+      )}
+
+      {(handoff === "open" || handoff === "sending" || handoff === "error") && (
+        <form className="handoffForm" onSubmit={sendHandoff} data-testid="ai-handoff-form">
+          <strong>Enviar a conversa para a equipe da OCTOPUS</strong>
+          <div className="handoffRow">
+            <input name="name" required minLength={2} maxLength={120} placeholder="Seu nome" aria-label="Seu nome" autoComplete="name" />
+            <input name="contact" required minLength={6} maxLength={160} placeholder="E-mail ou WhatsApp" aria-label="E-mail ou WhatsApp" autoComplete="email" />
+          </div>
+          <input className="honeypot" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+          <label className="handoffConsent">
+            <input type="checkbox" name="consent" required />
+            <span>Concordo em enviar esta conversa e meu contato para a OCTOPUS IA me responder, conforme a <Link href="/privacidade">política de privacidade</Link>.</span>
+          </label>
+          {handoff === "error" && <p className="leadError" role="alert">{handoffError}</p>}
+          <div className="handoffActions">
+            <button type="submit" disabled={handoff === "sending"}>{handoff === "sending" ? "Enviando..." : "Enviar conversa"}</button>
+            <button type="button" className="handoffCancel" onClick={() => setHandoff("closed")}>Cancelar</button>
+          </div>
+        </form>
+      )}
+
+      {handoff === "sent" && (
+        <p className="handoffSent" role="status">Conversa enviada. A equipe da OCTOPUS responde em até 1 dia útil.</p>
+      )}
+
+      <p className="aiPrivacy">Não envie senhas, documentos pessoais ou dados sensíveis. As perguntas ficam guardadas por até 90 dias, sem identificação, para melhorarmos o serviço. <Link href="/privacidade">Política de privacidade</Link>.</p>
     </section>
   );
 }

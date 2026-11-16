@@ -23,6 +23,15 @@ function rateLimited(key: string) {
   return recent.length > MAX_PER_WINDOW;
 }
 
+function transcript(value: unknown) {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter((item): item is { role: string; content: string } => Boolean(item) && typeof item === "object" && typeof (item as { content?: unknown }).content === "string")
+    .filter((item) => item.role === "user" || item.role === "assistant")
+    .map((item) => ({ role: item.role, content: item.content.slice(0, 3000) }))
+    .slice(-20);
+}
+
 function clean(value: unknown, max: number) {
   return typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, max) : "";
 }
@@ -58,7 +67,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Para enviar, marque a concordância com a política de privacidade." }, { status: 400 });
   }
 
-  const record = { ...lead, source: "site", receivedAt: new Date().toISOString() };
+  const source = body.source === "chat" ? "chat" : "site";
+  const conversation = source === "chat" ? transcript(body.transcript) : [];
+  const record = { ...lead, source, ...(conversation.length ? { transcript: conversation } : {}), receivedAt: new Date().toISOString() };
 
   try {
     await mkdir(LEADS_DIR, { recursive: true });

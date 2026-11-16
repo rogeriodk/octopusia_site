@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { OCTOPUS_ASSISTANT_INSTRUCTIONS } from "../../../lib/octopus-knowledge";
+import { logChatTurn, validSession } from "../../../lib/chat-log";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -106,7 +107,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "A IA do site ainda não está configurada neste ambiente." }, { status: 503 });
     }
 
-    const body = await request.json().catch(() => null) as { message?: unknown; history?: unknown } | null;
+    const body = await request.json().catch(() => null) as { message?: unknown; history?: unknown; session?: unknown } | null;
     const message = typeof body?.message === "string" ? body.message.trim().slice(0, 3000) : "";
     if (!message) {
       return NextResponse.json({ error: "Digite uma pergunta para continuar." }, { status: 400 });
@@ -169,6 +170,8 @@ export async function POST(request: Request) {
         { upstreamStatus: upstream.status, upstreamCode: null, upstreamType: payload?.status || null }
       );
     }
+
+    await logChatTurn({ session: validSession(body?.session), question: message, answer });
 
     return new Response(answer, {
       headers: {

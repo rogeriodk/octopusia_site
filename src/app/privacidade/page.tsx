@@ -28,7 +28,8 @@ export default function PrivacyPage() {
             <thead><tr><th>Situação</th><th>Dados</th><th>Para quê</th><th>Base legal (LGPD)</th></tr></thead>
             <tbody>
               <tr><td>Formulário de contato</td><td>Nome, empresa, e-mail ou WhatsApp e a mensagem</td><td>Responder, fazer orçamentos e propostas</td><td>Procedimentos preliminares a contrato (art. 7º, V)</td></tr>
-              <tr><td>Conversa com a IA do site</td><td>O texto que você digita</td><td>Gerar a resposta da IA. Não usamos as conversas como cadastro comercial</td><td>Legítimo interesse (art. 7º, IX)</td></tr>
+              <tr><td>Conversa com a IA do site</td><td>O texto que você digita e as respostas, sem identificação (e-mails, telefones e documentos são apagados automaticamente)</td><td>Gerar a resposta e entender o que os visitantes perguntam, para melhorar o serviço</td><td>Legítimo interesse (art. 7º, IX)</td></tr>
+              <tr><td>Envio da conversa para a equipe</td><td>Nome, e-mail ou WhatsApp e a conversa com a IA, quando você pede para enviá-la</td><td>Responder ao seu pedido com o contexto da conversa</td><td>Procedimentos preliminares a contrato (art. 7º, V)</td></tr>
               <tr><td>Clientes e fornecedores</td><td>Dados de contato dos representantes, cobrança e notas fiscais</td><td>Executar o contrato e cumprir obrigações fiscais</td><td>Execução de contrato e obrigação legal (art. 7º, V e II)</td></tr>
               <tr><td>Prospecção comercial</td><td>Nome, cargo, empresa e contatos profissionais de fontes públicas</td><td>Apresentar nossos serviços a empresas que podem se interessar</td><td>Legítimo interesse (art. 7º, IX)</td></tr>
               <tr><td>Navegação</td><td>Endereço IP e dados técnicos de acesso</td><td>Manter o site funcionando e seguro</td><td>Legítimo interesse (art. 7º, IX)</td></tr>
@@ -45,7 +46,8 @@ export default function PrivacyPage() {
 
         <h2>6. Por quanto tempo guardamos</h2>
         <ul>
-          <li>Contatos e propostas que não viraram contrato: até 2 anos após o último contato, ou antes, se você pedir a exclusão.</li>
+          <li>Conversas com a IA do site, sem identificação: até 90 dias, apagadas automaticamente.</li>
+          <li>Contatos, conversas enviadas à equipe e propostas que não viraram contrato: até 2 anos após o último contato, ou antes, se você pedir a exclusão.</li>
           <li>Dados de clientes e fornecedores: durante o contrato e pelo prazo exigido pela legislação fiscal e contábil.</li>
           <li>Pedidos para não receber contatos: guardamos o mínimo necessário para não voltar a procurá-lo.</li>
         </ul>
