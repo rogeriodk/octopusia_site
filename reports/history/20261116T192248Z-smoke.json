@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "kind": "smoke",
+  "environment": "homologacao",
+  "commit": "816c951f787029e4f0152f14842febd48bbaa07a",
+  "baseUrl": "https://homolog.octopusia.org",
+  "startedAt": "2026-11-16T19:21:34.611Z",
+  "finishedAt": "2026-11-16T19:21:36.846Z",
+  "durationMs": 2235,
+  "summary": {
+    "total": 3,
+    "passed": 3,
+    "failed": 0,
+    "warned": 0
+  },
+  "cases": [
+    {
+      "name": "health",
+      "path": "/health",
+      "durationMs": 1014,
+      "status": "PASS"
+    },
+    {
+      "name": "home",
+      "path": "/",
+      "durationMs": 446,
+      "status": "PASS"
+    },
+    {
+      "name": "ai-readiness",
+      "path": "/api/ai",
+      "durationMs": 216,
+      "status": "PASS"
+    }
+  ]
+}
