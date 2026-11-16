@@ -15,6 +15,26 @@ function newSessionId() {
   return `s-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+// Mostra o markdown simples que a IA usa (negrito, listas e títulos) sem HTML cru.
+function renderRich(text: string) {
+  return text.split("\n").map((rawLine, lineIndex, lines) => {
+    let line = rawLine.replace(/^#{1,4}\s+/, "");
+    const heading = line !== rawLine;
+    line = line.replace(/^(\s*)[-*]\s+/, "$1• ");
+    const parts = line.split(/(\*\*[^*]+\*\*)/g).map((part, partIndex) =>
+      part.startsWith("**") && part.endsWith("**") && part.length > 4
+        ? <strong key={partIndex}>{part.slice(2, -2)}</strong>
+        : part
+    );
+    return (
+      <span key={lineIndex}>
+        {heading ? <strong>{parts}</strong> : parts}
+        {lineIndex < lines.length - 1 ? "\n" : null}
+      </span>
+    );
+  });
+}
+
 const initialMessage: Message = {
   role: "assistant",
   content: "Olá! Eu sou a IA da OCTOPUS. Posso explicar nossos projetos, analisar uma oportunidade de automação ou fazer um diagnóstico rápido do seu negócio."
@@ -164,7 +184,7 @@ export default function AIInteractive() {
         {messages.slice(-5).map((message, index) => (
           <div key={`${message.role}-${index}`} className={`message ${message.role}`}>
             <span className="messageAvatar">{message.role === "assistant" ? "O" : "Você"}</span>
-            <p>{message.content || (busy ? "Pensando..." : "")}</p>
+            <p>{message.content ? (message.role === "assistant" ? renderRich(message.content) : message.content) : (busy ? "Pensando..." : "")}</p>
           </div>
         ))}
       </div>
