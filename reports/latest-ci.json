@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "ci",
   "environment": "homologacao",
-  "commit": "65dd357f4bf923fa74ac2c3e60a5290c797e69ce",
-  "runId": "32542713085",
+  "commit": "4e01ea1ce25ccef1640456feb69e4b52fda8a87a",
+  "runId": "43937094516",
   "applicationVersion": "0.1.0",
-  "createdAt": "2026-08-22T01:13:32.093Z",
+  "createdAt": "2026-11-16T19:15:12.812Z",
   "summary": {
     "total": 7,
-    "passed": 7,
-    "failed": 0,
+    "passed": 6,
+    "failed": 1,
     "warned": 0
   },
   "cases": [
@@ -35,7 +35,7 @@
     },
     {
       "name": "security",
-      "status": "SUCCESS"
+      "status": "FAILURE"
     },
     {
       "name": "docker",
