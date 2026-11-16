@@ -13,7 +13,7 @@ html[data-theme="dark"]{color-scheme:dark}
 .brandWord b{background:linear-gradient(90deg,#8a6cf0,var(--brand-coral));background-clip:text;-webkit-background-clip:text;color:transparent}
 .siteFooter .brandWord{color:#fff}
 .siteFooter .officialLogo{filter:none}
-.hero h1 em{background:linear-gradient(90deg,#6f63df,var(--brand-coral))}
+.hero h1 em{background-image:linear-gradient(90deg,#6f63df,var(--brand-coral))}
 
 /* ---------- Botão de tema ---------- */
 .themeToggle{display:inline-grid;place-items:center;width:42px;height:42px;flex:0 0 auto;border:1px solid var(--line);border-radius:10px;background:#fff;color:#4b4a8a;cursor:pointer;transition:background .2s ease,color .2s ease}
