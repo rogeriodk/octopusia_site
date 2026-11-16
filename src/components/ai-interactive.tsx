@@ -9,6 +9,12 @@ type Message = { role: "user" | "assistant"; content: string };
 type AiStatus = { configured: boolean; model?: string };
 type Handoff = "closed" | "open" | "sending" | "sent" | "error";
 
+// Identificador anônimo da conversa, só para agrupar as perguntas de uma mesma visita.
+function newSessionId() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
+  return `s-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 const initialMessage: Message = {
   role: "assistant",
   content: "Olá! Eu sou a IA da OCTOPUS. Posso explicar nossos projetos, analisar uma oportunidade de automação ou fazer um diagnóstico rápido do seu negócio."
@@ -49,7 +55,7 @@ export default function AIInteractive() {
 
     const history = recentHistory;
     if (!sessionRef.current) {
-      sessionRef.current = typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `s-${Math.random().toString(36).slice(2, 14)}`;
+      sessionRef.current = newSessionId();
     }
     setInput("");
     setBusy(true);
