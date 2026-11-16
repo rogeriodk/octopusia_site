@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "ci",
   "environment": "homologacao",
-  "commit": "816c951f787029e4f0152f14842febd48bbaa07a",
-  "runId": "43937629323",
+  "commit": "057c2dc7768e69c8b3fee67088666959fcf6e94d",
+  "runId": "43939173609",
   "applicationVersion": "0.1.0",
-  "createdAt": "2026-11-16T19:18:14.358Z",
+  "createdAt": "2026-11-16T19:27:00.591Z",
   "summary": {
     "total": 7,
     "passed": 7,
