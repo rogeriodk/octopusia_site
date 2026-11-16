@@ -2,32 +2,17 @@
   "schemaVersion": 1,
   "kind": "security",
   "environment": "homologacao",
-  "commit": "4e01ea1ce25ccef1640456feb69e4b52fda8a87a",
-  "runId": "43937094516",
-  "createdAt": "2026-11-16T19:14:21.830Z",
+  "commit": "816c951f787029e4f0152f14842febd48bbaa07a",
+  "runId": "43937629323",
+  "createdAt": "2026-11-16T19:17:21.563Z",
   "scanStatus": "SUCCESS",
-  "blocking": true,
+  "blocking": false,
   "summary": {
     "low": 0,
     "moderate": 0,
-    "high": 1,
-    "critical": 1,
-    "total": 2
+    "high": 0,
+    "critical": 0,
+    "total": 0
   },
-  "vulnerabilities": [
-    {
-      "package": "next",
-      "severity": "critical",
-      "direct": true,
-      "range": "16.0.0 - 16.4.0",
-      "fixAvailable": true
-    },
-    {
-      "package": "sharp",
-      "severity": "high",
-      "direct": false,
-      "range": "<=0.35.5-rc.1",
-      "fixAvailable": true
-    }
-  ]
+  "vulnerabilities": []
 }
