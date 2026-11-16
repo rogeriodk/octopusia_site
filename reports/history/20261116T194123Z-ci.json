@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "kind": "ci",
+  "environment": "homologacao",
+  "commit": "e456462e035a49f731ce581b8e8d0433790b403d",
+  "runId": "43941650734",
+  "applicationVersion": "0.1.0",
+  "createdAt": "2026-11-16T19:41:06.247Z",
+  "summary": {
+    "total": 7,
+    "passed": 7,
+    "failed": 0,
+    "warned": 0
+  },
+  "cases": [
+    {
+      "name": "install",
+      "status": "SUCCESS"
+    },
+    {
+      "name": "typecheck",
+      "status": "SUCCESS"
+    },
+    {
+      "name": "lint",
+      "status": "SUCCESS"
+    },
+    {
+      "name": "unit",
+      "status": "SUCCESS"
+    },
+    {
+      "name": "build",
+      "status": "SUCCESS"
+    },
+    {
+      "name": "security",
+      "status": "SUCCESS"
+    },
+    {
+      "name": "docker",
+      "status": "SUCCESS"
+    }
+  ]
+}
