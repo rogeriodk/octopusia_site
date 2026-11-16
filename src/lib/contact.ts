@@ -3,7 +3,7 @@
 export const CONTACT = {
   email: "contato@octopusia.org",
   privacyEmail: "privacidade@octopusia.org",
-  whatsappNumber: "",
+  whatsappNumber: "5531998845570",
   legalName: "OCTOPUS IA SISTEMAS LTDA",
   cnpj: "",
   city: "Belo Horizonte · MG",
